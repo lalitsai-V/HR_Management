@@ -1,0 +1,65 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-primary: #3b82f6;
+  --color-primary-hover: #2563eb;
+  
+  --color-background-light: #f8fafc;
+  --color-surface-light: #ffffff;
+  --color-text-light: #0f172a;
+  --color-text-muted-light: #64748b;
+  --color-border-light: #e2e8f0;
+
+  --color-background-dark: #0f172a;
+  --color-surface-dark: #1e293b;
+  --color-text-dark: #f8fafc;
+  --color-text-muted-dark: #cbd5e1;
+  --color-border-dark: #334155;
+}
+
+@layer base {
+  body {
+    @apply transition-colors duration-200 antialiased font-sans;
+    background-color: var(--color-background-light);
+    color: var(--color-text-light);
+  }
+  
+  .dark body {
+    background-color: var(--color-background-dark);
+    color: var(--color-text-dark);
+  }
+  
+  .card {
+    @apply rounded-xl shadow-sm transition-colors duration-200 border;
+    background-color: var(--color-surface-light);
+    border-color: var(--color-border-light);
+  }
+  
+  .dark .card {
+    @apply shadow-md;
+    background-color: var(--color-surface-dark);
+    border-color: var(--color-border-dark);
+  }
+
+  .input-field {
+    @apply w-full px-4 py-2 mt-1 rounded-lg focus:outline-none focus:ring-2 focus:border-transparent bg-transparent border transition-colors;
+    border-color: var(--color-border-light);
+  }
+
+  .dark .input-field {
+    border-color: var(--color-border-dark);
+    color: var(--color-text-dark);
+  }
+
+  .btn-primary {
+    @apply font-medium py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors;
+    background-color: var(--color-primary);
+    color: #ffffff;
+  }
+
+  .btn-primary:hover {
+    background-color: var(--color-primary-hover);
+  }
+}
