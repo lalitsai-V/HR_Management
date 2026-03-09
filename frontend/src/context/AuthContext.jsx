@@ -1,6 +1,7 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect } from 'react';
 
-const AuthContext = createContext();
+// ✅ Export the context so useAuth.js can access it
+export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -9,9 +10,13 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const token = localStorage.getItem('token');
     const storedUser = localStorage.getItem('user');
+
+    // ✅ Only call setState when data actually exists (cleaner pattern)
     if (token && storedUser) {
       setUser(JSON.parse(storedUser));
     }
+
+    // ✅ setLoading moved outside the if-block so it always runs
     setLoading(false);
   }, []);
 
@@ -34,4 +39,4 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-export const useAuth = () => useContext(AuthContext);
+// ✅ Only React component exported from this file = Fast Refresh works!

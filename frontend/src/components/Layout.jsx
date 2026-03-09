@@ -1,13 +1,49 @@
-import React from 'react';
-import { Outlet, Navigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Outlet, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Header from './Header';
-import { useAuth } from '../context/AuthContext';
+import useAuth from '../context/useAuth';
+import api from '../services/api';
 
 const Layout = () => {
   const { user, loading } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [checkingProfile, setCheckingProfile] = useState(true);
 
-  if (loading) {
+  // ── Is the user on the profile-setup page? ──────────────────────────────
+  const isCompleteProfilePage = location.pathname === '/complete-profile';
+
+  useEffect(() => {
+    const ensureProfile = async () => {
+      if (!user || user.role === 'admin') {
+        setCheckingProfile(false);
+        return;
+      }
+
+      // Already on the setup page — no need to check or redirect
+      if (isCompleteProfilePage) {
+        setCheckingProfile(false);
+        return;
+      }
+
+      try {
+        await api.get('/employees/me');
+        setCheckingProfile(false);
+      } catch (err) {
+        if (err.response?.status === 404) {
+          navigate('/complete-profile', { replace: true });
+        } else {
+          setCheckingProfile(false);
+        }
+      }
+    };
+
+    ensureProfile();
+  }, [user, location.pathname, navigate]);
+
+  // ── Loading spinner (identical to original) ─────────────────────────────
+  if (loading || checkingProfile) {
     return (
       <div
         className="min-h-screen flex items-center justify-center"
@@ -46,10 +82,24 @@ const Layout = () => {
     );
   }
 
+  // ── Not logged in ────────────────────────────────────────────────────────
   if (!user) {
     return <Navigate to="/login" replace />;
   }
 
+  // ── Complete-profile page: full-screen centered, NO sidebar or header ────
+  if (isCompleteProfilePage) {
+    return (
+      <div
+        className="min-h-screen overflow-y-auto py-12 px-4"
+        style={{ background: 'var(--color-background-light)' }}
+      >
+        <Outlet />
+      </div>
+    );
+  }
+
+  // ── All other pages: normal layout ───────────────────────────────────────
   return (
     <div
       className="flex h-screen overflow-hidden"

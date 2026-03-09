@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Eye, Edit, Trash2, Search, Plus, Download, X, Users } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
+import useAuth from '../context/useAuth';
 import { Link } from 'react-router-dom';
 import api from '../services/api';
-import { useEmployees } from '../context/EmployeeContext';
+import useEmployees from '../context/useEmployees';
 
 const STATUS_CONFIG = {
   Active:     { dot: '#10b981', text: '#059669', bg: 'rgba(16,185,129,0.08)',  border: 'rgba(16,185,129,0.2)'  },
@@ -40,7 +40,7 @@ const Employees = () => {
   const itemsPerPage                          = 10;
   const [isModalOpen, setIsModalOpen]         = useState(false);
   const [editingEmployee, setEditingEmployee] = useState(null);
-  const [formData, setFormData]               = useState({ name: '', company: '', status: 'Active', profile_image: '' });
+  const [formData, setFormData]               = useState({ name: '', company: 'VaisoVerse Technology', status: 'Active', profile_image: '' });
 
   const handleExport = async () => {
     try {
@@ -75,7 +75,7 @@ const Employees = () => {
       setFormData({ name: emp.name, company: emp.company, status: emp.status, profile_image: emp.profile_image || '' });
     } else {
       setEditingEmployee(null);
-      setFormData({ name: '', company: '', status: 'Active', profile_image: '' });
+      setFormData({ name: '', company: 'VaisoVerse Technology', status: 'Active', profile_image: '' });
     }
     setIsModalOpen(true);
   };
@@ -171,10 +171,10 @@ const Employees = () => {
           <table className="w-full text-left">
             <thead>
               <tr style={{ background: 'rgba(124,58,237,0.03)', borderBottom: '1px solid var(--color-border-light)' }}>
-                {['Employee', 'ID', 'Department', 'Status', 'Actions'].map((h, i) => (
+                {['No.', 'Employee', 'ID', 'Company', 'Status', 'Actions'].map((h, i) => (
                   <th
                     key={h}
-                    className={`py-3.5 px-5 text-xs font-semibold uppercase tracking-wider ${i === 4 ? 'text-right' : ''}`}
+                    className={`py-3.5 px-5 text-xs font-semibold uppercase tracking-wider ${i === 5 ? 'text-right' : ''}`}
                     style={{ color: '#94a3b8' }}
                   >
                     {h}
@@ -229,7 +229,15 @@ const Employees = () => {
                       </div>
                     </td>
 
-                    {/* ID */}
+                    {/* Normal ID */}
+                    <td className="py-3.5 px-5">
+                      <span className="text-xs font-medium px-2.5 py-1 rounded-lg"
+                        style={{ color: '#64748b' }}>
+                        {emp.id || '-'}
+                      </span>
+                    </td>
+
+                    {/* Emp ID */}
                     <td className="py-3.5 px-5">
                       <span className="text-xs font-mono px-2.5 py-1 rounded-lg"
                         style={{ background: 'rgba(148,163,184,0.08)', border: '1px solid rgba(148,163,184,0.12)', color: '#64748b' }}>
@@ -366,13 +374,19 @@ const Employees = () => {
               </div>
 
               <div>
-                <FieldLabel>Company / Department</FieldLabel>
-                <input type="text" required value={formData.company}
+                <FieldLabel>Company</FieldLabel>
+                <select 
+                  required 
+                  value={formData.company}
                   onChange={(e) => setFormData({ ...formData, company: e.target.value })}
-                  className="input-field" placeholder="e.g. Engineering, HR, Marketing" />
+                  className="input-field appearance-none cursor-pointer"
+                >
+                  <option value="VaisoVerse Technology">VaisoVerse Technology</option>
+                  <option value="We Marketing Experts">We Marketing Experts</option>
+                </select>
                 {!editingEmployee && (
                   <p className="text-xs mt-1.5" style={{ color: '#94a3b8' }}>
-                    Smart ID will be generated using the first 3 letters.
+                    Prefix VV0001 or WME001 will be used based on selected company.
                   </p>
                 )}
               </div>

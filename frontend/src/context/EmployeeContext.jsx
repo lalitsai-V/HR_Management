@@ -1,12 +1,13 @@
-import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import React, { createContext, useEffect, useState, useCallback } from 'react';
 import api from '../services/api';
 
-const EmployeeContext = createContext();
+// ✅ Export context so useEmployees.js can access it
+export const EmployeeContext = createContext();
 
 export const EmployeeProvider = ({ children }) => {
   const [employees, setEmployees] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [loading, setLoading]     = useState(false);
+  const [error, setError]         = useState(null);
 
   const fetchEmployees = useCallback(async () => {
     try {
@@ -26,20 +27,11 @@ export const EmployeeProvider = ({ children }) => {
     fetchEmployees();
   }, [fetchEmployees]);
 
-  const value = {
-    employees,
-    loading,
-    error,
-    refreshEmployees: fetchEmployees,
-    setEmployees,
-  };
-
   return (
-    <EmployeeContext.Provider value={value}>
+    <EmployeeContext.Provider value={{ employees, loading, error, refreshEmployees: fetchEmployees, setEmployees }}>
       {children}
     </EmployeeContext.Provider>
   );
 };
 
-export const useEmployees = () => useContext(EmployeeContext);
-
+// ✅ Only React component exported = Fast Refresh works!

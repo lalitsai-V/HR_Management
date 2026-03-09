@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import useAuth from '../context/useAuth';
 import api from '../services/api';
-import { Zap, ArrowRight, Mail, Lock, User, Shield } from 'lucide-react';
+import { ArrowRight, Mail, Lock, User, Shield } from 'lucide-react';
+import Logo from '../components/Logo';
 
 const Register = () => {
   const [formData, setFormData] = useState({ name: '', email: '', password: '', role: 'user' });
@@ -17,7 +18,13 @@ const Register = () => {
     try {
       const { data } = await api.post('/auth/register', formData);
       login(data);
-      navigate('/');
+
+      // New users should complete their profile information before using the app.
+      if (data.role !== 'admin') {
+        navigate('/complete-profile');
+      } else {
+        navigate('/');
+      }
     } catch (err) {
       setError(err.response?.data?.message || 'Registration failed');
     } finally {
@@ -56,12 +63,7 @@ const Register = () => {
         />
 
         <div className="relative flex items-center gap-3">
-          <div
-            className="w-10 h-10 rounded-xl flex items-center justify-center"
-            style={{ background: 'linear-gradient(135deg, #7c3aed, #4f46e5)' }}
-          >
-            <Zap size={18} className="text-white" fill="white" />
-          </div>
+          <Logo size={36} />
           <span
             className="text-xl font-bold text-white tracking-tight"
             style={{ fontFamily: 'Outfit, sans-serif' }}
@@ -132,12 +134,7 @@ const Register = () => {
       >
         <div className="w-full max-w-sm">
           <div className="lg:hidden flex items-center gap-2.5 mb-8">
-            <div
-              className="w-8 h-8 rounded-xl flex items-center justify-center"
-              style={{ background: 'linear-gradient(135deg, #7c3aed, #4f46e5)' }}
-            >
-              <Zap size={14} className="text-white" fill="white" />
-            </div>
+            <Logo size={28} />
             <span className="text-lg font-bold" style={{ fontFamily: 'Outfit, sans-serif', color: '#0f172a' }}>
               VisoVersa
             </span>

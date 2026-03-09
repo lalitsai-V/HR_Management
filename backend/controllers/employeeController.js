@@ -28,13 +28,30 @@ export const getEmployees = async (req, res) => {
   }
 };
 
+export const getMyEmployee = async (req, res) => {
+  try {
+    const { data: employee, error } = await supabase
+      .from('employees')
+      .select('*')
+      .eq('user_id', req.user.id)
+      .maybeSingle();
+
+    if (error) throw error;
+    if (!employee) return res.status(404).json({ message: 'Employee profile not found' });
+
+    res.json(employee);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 export const getEmployeeById = async (req, res) => {
   try {
     const { data: employee, error } = await supabase
       .from('employees')
       .select('*')
       .eq('emp_id', req.params.id)
-      .single();
+      .maybeSingle();
 
     if (error) throw error;
     if (!employee) return res.status(404).json({ message: 'Employee not found' });
@@ -46,11 +63,36 @@ export const getEmployeeById = async (req, res) => {
 };
 
 export const createEmployee = async (req, res) => {
-  const { name, company, status, profile_image } = req.body;
+  const {
+    name,
+    email,
+    company,
+    status,
+    profile_image,
+    phone,
+    department,
+    designation,
+    date_of_joining,
+    aadhaar,
+    pan,
+    bank_name,
+    ifsc_code,
+    branch_name,
+    account_number,
+    salary,
+    aadhaar_doc,
+    user_id: providedUserId,
+  } = req.body;
+
+  if (company !== 'VaisoVerse Technology' && company !== 'We Marketing Experts') {
+    return res.status(400).json({ message: 'Invalid company selection.' });
+  }
+
   try {
-    // Generate Smart ID
-    const prefix = company.substring(0, 3).toUpperCase();
-    
+    // Generate Smart ID based on company
+    const prefix = company === 'VaisoVerse Technology' ? 'VV' : 'WME';
+    const numDigits = company === 'VaisoVerse Technology' ? 4 : 3;
+
     // Find highest existing ID with this prefix
     const { data: existingIds, error: searchError } = await supabase
       .from('employees')
@@ -67,11 +109,46 @@ export const createEmployee = async (req, res) => {
       }
     }
 
-    const emp_id = `${prefix}${nextNumber.toString().padStart(3, '0')}`;
+    const emp_id = `${prefix}${nextNumber.toString().padStart(numDigits, '0')}`;
+
+    const user_id = req.user.role === 'admin' ? providedUserId : req.user.id;
+
+    // Prevent duplicate employee record for the same user
+    if (user_id) {
+      const { data: existing, error: existingError } = await supabase
+        .from('employees')
+        .select('emp_id')
+        .eq('user_id', user_id)
+        .maybeSingle();
+
+      if (existing && !existingError) {
+        return res.status(400).json({ message: 'Employee profile already exists for this user' });
+      }
+    }
 
     const { data: employee, error } = await supabase
       .from('employees')
-      .insert([{ emp_id, name, company, status: status || 'Active', profile_image }])
+      .insert([{
+        emp_id,
+        name,
+        email: email || req.user.email,
+        company,
+        status: status || 'Active',
+        profile_image,
+        phone,
+        department,
+        designation,
+        date_of_joining,
+        aadhaar,
+        pan,
+        bank_name,
+        ifsc_code,
+        branch_name,
+        account_number,
+        salary,
+        aadhaar_doc,
+        user_id,
+      }])
       .select('*')
       .single();
 
@@ -85,17 +162,72 @@ export const createEmployee = async (req, res) => {
 };
 
 export const updateEmployee = async (req, res) => {
-  const { name, company, status, profile_image } = req.body;
+  const {
+    name,
+    email,
+    company,
+    status,
+    profile_image,
+    phone,
+    department,
+    designation,
+    date_of_joining,
+    aadhaar,
+    pan,
+    bank_name,
+    ifsc_code,
+    branch_name,
+    account_number,
+    salary,
+    aadhaar_doc,
+  } = req.body;
+
+  if (company !== 'VaisoVerse Technology' && company !== 'We Marketing Experts') {
+    return res.status(400).json({ message: 'Invalid company selection.' });
+  }
+
   try {
+    const empId = req.params.id;
+
+    const employeeQuery = supabase.from('employees').select('*');
+    const { data: existingEmployee, error: fetchError } = empId
+      ? await employeeQuery.eq('emp_id', empId).maybeSingle()
+      : await employeeQuery.eq('user_id', req.user.id).maybeSingle();
+
+    if (fetchError) throw fetchError;
+    if (!existingEmployee) return res.status(404).json({ message: 'Employee not found' });
+
+    // Only admin or owner can update
+    if (req.user.role !== 'admin' && existingEmployee.user_id !== req.user.id) {
+      return res.status(403).json({ message: 'Not authorized to update this profile' });
+    }
+
     const { data: employee, error } = await supabase
       .from('employees')
-      .update({ name, company, status, profile_image })
-      .eq('emp_id', req.params.id)
+      .update({
+        name,
+        email,
+        company,
+        status,
+        profile_image,
+        phone,
+        department,
+        designation,
+        date_of_joining,
+        aadhaar,
+        pan,
+        bank_name,
+        ifsc_code,
+        branch_name,
+        account_number,
+        salary,
+        aadhaar_doc,
+      })
+      .eq('emp_id', existingEmployee.emp_id)
       .select('*')
-      .single();
+      .maybeSingle();
 
     if (error) throw error;
-    if (!employee) return res.status(404).json({ message: 'Employee not found' });
 
     await logActivity(req.user.name, 'Employee edited', req.params.id);
     res.json(employee);
@@ -111,7 +243,7 @@ export const deleteEmployee = async (req, res) => {
       .delete()
       .eq('emp_id', req.params.id)
       .select('*')
-      .single();
+      .maybeSingle();
 
     if (error) throw error;
     if (!employee) return res.status(404).json({ message: 'Employee not found' });
@@ -134,9 +266,22 @@ export const exportEmployees = async (req, res) => {
 
     const csvStringifier = createObjectCsvStringifier({
       header: [
+        { id: 'id', title: 'S.No' },
         { id: 'emp_id', title: 'EmpID' },
         { id: 'name', title: 'Name' },
+        { id: 'email', title: 'Email' },
+        { id: 'phone', title: 'Phone' },
         { id: 'company', title: 'Company' },
+        { id: 'department', title: 'Department' },
+        { id: 'designation', title: 'Designation' },
+        { id: 'date_of_joining', title: 'Date of Joining' },
+        { id: 'aadhaar', title: 'Aadhaar No.' },
+        { id: 'pan', title: 'PAN No.' },
+        { id: 'bank_name', title: 'Bank Name' },
+        { id: 'ifsc_code', title: 'IFSC Code' },
+        { id: 'branch_name', title: 'Branch Name' },
+        { id: 'account_number', title: 'Account No.' },
+        { id: 'salary', title: 'Salary' },
         { id: 'status', title: 'Status' },
         { id: 'created_at', title: 'Created At' }
       ]
