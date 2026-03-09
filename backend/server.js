@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import authRoutes from './routes/authRoutes.js';
 import employeeRoutes from './routes/employeeRoutes.js';
 import activityRoutes from './routes/activityRoutes.js';
+import leaveRoutes from './routes/Leaveroutes.js';
 
 dotenv.config();
 
@@ -16,6 +17,7 @@ app.use(express.urlencoded({ limit: '10mb', extended: true }));
 app.use('/api/auth', authRoutes);
 app.use('/api/employees', employeeRoutes);
 app.use('/api/activity', activityRoutes);
+app.use('/api/leave-requests', leaveRoutes); 
 
 app.get('/', (req, res) => {
   res.send('VisoVersa API Running');
