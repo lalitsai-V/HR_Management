@@ -41,6 +41,7 @@ CREATE TABLE activity_logs (
   employee_id VARCHAR(50) REFERENCES employees(emp_id) ON DELETE CASCADE,
   timestamp TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+<<<<<<< HEAD
 
 -- Create attendance table
 CREATE TABLE attendance (
@@ -53,3 +54,5 @@ CREATE TABLE attendance (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   CONSTRAINT unique_attendance_per_day UNIQUE (user_id, date)
 );
+=======
+>>>>>>> 93b8165bd87c5360229d96013264986a1782586d

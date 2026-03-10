@@ -15,7 +15,10 @@ import Attendance from './pages/Attendance';
 import ApplyLeave from './pages/ApplyLeave';
 import LeaveApproval from './pages/LeaveApproval';
 import CompleteProfile from './pages/CompleteProfile';
+<<<<<<< HEAD
 import AdminAttendance from './pages/AdminAttendance';
+=======
+>>>>>>> 93b8165bd87c5360229d96013264986a1782586d
 
 // Guard: only admin can access
 const AdminRoute = ({ children }) => {
@@ -51,10 +54,16 @@ function App() {
 
                 {/* Admin only */}
                 <Route path="employees"     element={<AdminRoute><Employees /></AdminRoute>} />
+<<<<<<< HEAD
                 <Route path="employees/:id"   element={<AdminRoute><EmployeeProfile /></AdminRoute>} />
                 <Route path="activity"        element={<AdminRoute><ActivityLogs /></AdminRoute>} />
                 <Route path="leave-approval"  element={<AdminRoute><LeaveApproval /></AdminRoute>} />
                 <Route path="admin-attendance" element={<AdminRoute><AdminAttendance /></AdminRoute>} />
+=======
+                <Route path="employees/:id" element={<AdminRoute><EmployeeProfile /></AdminRoute>} />
+                <Route path="activity"      element={<AdminRoute><ActivityLogs /></AdminRoute>} />
+                <Route path="leave-approval" element={<AdminRoute><LeaveApproval /></AdminRoute>} />
+>>>>>>> 93b8165bd87c5360229d96013264986a1782586d
 
                 {/* User (employee) only */}
                 <Route path="attendance"  element={<UserRoute><Attendance /></UserRoute>} />
