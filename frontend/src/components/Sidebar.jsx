@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Users, Activity, LogOut, CalendarDays, FileText, ClipboardCheck } from 'lucide-react';
+import { LayoutDashboard, Users, Activity, LogOut, CalendarDays, FileText, ClipboardCheck, DollarSign } from 'lucide-react';
 import useAuth from '../context/useAuth'; // ✅ FIXED: default import from useAuth.js
 import Logo from './Logo';
 
@@ -18,18 +18,12 @@ const Sidebar = () => {
   // ── User sees:  Dashboard, Attendance, Apply Leave
   const navLinks = isAdmin
     ? [
-<<<<<<< HEAD
-        { name: 'Dashboard',        path: '/',                 icon: LayoutDashboard },
-        { name: 'Employees',        path: '/employees',        icon: Users           },
-        { name: 'Admin Attendance', path: '/admin-attendance', icon: CalendarDays    },
-        { name: 'Leave Approvals',  path: '/leave-approval',   icon: ClipboardCheck  },
-        { name: 'Activity Logs',    path: '/activity',         icon: Activity        },
-=======
-        { name: 'Dashboard',       path: '/',               icon: LayoutDashboard },
-        { name: 'Employees',       path: '/employees',      icon: Users           },
-        { name: 'Leave Approvals', path: '/leave-approval', icon: ClipboardCheck  },
-        { name: 'Activity Logs',   path: '/activity',       icon: Activity        },
->>>>>>> 93b8165bd87c5360229d96013264986a1782586d
+        { name: 'Dashboard',        path: '/',                icon: LayoutDashboard },
+        { name: 'Employees',        path: '/employees',       icon: Users           },
+        { name: 'Admin Attendance', path: '/admin-attendance', icon: CalendarDays   },
+        { name: 'Payroll',          path: '/admin-payroll',   icon: DollarSign      },
+        { name: 'Leave Approvals',  path: '/leave-approval',  icon: ClipboardCheck  },
+        { name: 'Activity Logs',    path: '/activity',        icon: Activity        },
       ]
     : [
         { name: 'Dashboard',   path: '/',            icon: LayoutDashboard },

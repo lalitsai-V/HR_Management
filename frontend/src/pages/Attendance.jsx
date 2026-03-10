@@ -1,30 +1,9 @@
-<<<<<<< HEAD
 import React, { useState, useMemo, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Calendar, CheckCircle2, XCircle, MinusCircle } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import api from '../services/api';
 
-// Attendance data is now loaded from the API
-=======
-import React, { useState, useMemo } from 'react';
-import { ChevronLeft, ChevronRight, Calendar, CheckCircle2, XCircle, MinusCircle } from 'lucide-react';
-import { useTheme } from '../context/ThemeContext';
-
-// Mock data — replace with API call
-const MOCK_ATTENDANCE = {
-  '2026-03-02': 'present', '2026-03-03': 'present', '2026-03-04': 'half',
-  '2026-03-05': 'present', '2026-03-06': 'present', '2026-03-09': 'present',
-  '2026-03-10': 'present', '2026-03-11': 'present', '2026-03-12': 'present',
-  '2026-03-13': 'present', '2026-03-16': 'present', '2026-03-17': 'present',
-  '2026-03-18': 'present', '2026-03-19': 'present', '2026-03-20': 'leave',
-};
-
-const MOCK_LEAVE_BALANCE = [
-  { type: 'Casual Leave', balance: 5.00, color: '#7c3aed', icon: '🌴' },
-  { type: 'Sick Leave',   balance: 3.00, color: '#0ea5e9', icon: '🏥' },
-  { type: 'Earned Leave', balance: 12.0, color: '#10b981', icon: '⭐' },
-];
->>>>>>> 93b8165bd87c5360229d96013264986a1782586d
+// Attendance data is loaded from the API
 
 const STATUS = {
   present: { color: '#10b981', label: 'Present'  },
@@ -44,12 +23,9 @@ const Attendance = () => {
   const { isDarkMode } = useTheme();
   const today = new Date();
   const [vd, setVd] = useState({ year: today.getFullYear(), month: today.getMonth() });
-<<<<<<< HEAD
   const [attendance, setAttendance] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-=======
->>>>>>> 93b8165bd87c5360229d96013264986a1782586d
 
   const c = {
     textPrimary: isDarkMode ? '#e2e8f0' : '#0f172a',
@@ -64,44 +40,32 @@ const Attendance = () => {
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const daysInPrev  = new Date(year, month, 0).getDate();
 
-  // ✅ FIXED: moved daysInMonth, daysInPrev, firstDay, today into useMemo deps
   const cells = useMemo(() => {
     const grid = [];
     for (let i = firstDay - 1; i >= 0; i--)
       grid.push({ day: daysInPrev - i, current: false });
     for (let d = 1; d <= daysInMonth; d++) {
-      const k = key(year, month, d);
       const dow = new Date(year, month, d).getDay();
-<<<<<<< HEAD
       const statusKey = key(year, month, d);
-=======
->>>>>>> 93b8165bd87c5360229d96013264986a1782586d
       grid.push({
-        day: d, current: true, k,
+        day: d,
+        current: true,
+        k: statusKey,
         isToday: d === today.getDate() && month === today.getMonth() && year === today.getFullYear(),
         isWeekend: dow === 0 || dow === 6,
-<<<<<<< HEAD
         status: attendance[statusKey],
-=======
-        status: MOCK_ATTENDANCE[k],
->>>>>>> 93b8165bd87c5360229d96013264986a1782586d
       });
     }
     const rem = 42 - grid.length;
     for (let d = 1; d <= rem; d++) grid.push({ day: d, current: false });
     return grid;
-<<<<<<< HEAD
   }, [year, month, firstDay, daysInMonth, daysInPrev, today, attendance]);
-=======
-  }, [year, month, firstDay, daysInMonth, daysInPrev, today]);
->>>>>>> 93b8165bd87c5360229d96013264986a1782586d
 
   const prev = () => setVd(v => v.month === 0  ? { year: v.year - 1, month: 11 } : { ...v, month: v.month - 1 });
   const next = () => setVd(v => v.month === 11 ? { year: v.year + 1, month: 0  } : { ...v, month: v.month + 1 });
   const goToday = () => setVd({ year: today.getFullYear(), month: today.getMonth() });
 
   const prefix = `${year}-${pad(month + 1)}`;
-<<<<<<< HEAD
   const presentCount = Object.entries(attendance).filter(([k, v]) => k.startsWith(prefix) && v === 'present').length;
   const leaveCount   = Object.entries(attendance).filter(([k, v]) => k.startsWith(prefix) && v === 'leave').length;
   const halfCount    = Object.entries(attendance).filter(([k, v]) => k.startsWith(prefix) && v === 'half').length;
@@ -134,11 +98,6 @@ const Attendance = () => {
 
     fetchAttendance();
   }, [year, month]);
-=======
-  const presentCount = Object.entries(MOCK_ATTENDANCE).filter(([k, v]) => k.startsWith(prefix) && v === 'present').length;
-  const leaveCount   = Object.entries(MOCK_ATTENDANCE).filter(([k, v]) => k.startsWith(prefix) && v === 'leave').length;
-  const halfCount    = Object.entries(MOCK_ATTENDANCE).filter(([k, v]) => k.startsWith(prefix) && v === 'half').length;
->>>>>>> 93b8165bd87c5360229d96013264986a1782586d
 
   return (
     <div className="space-y-6" style={{ fontFamily: 'DM Sans, sans-serif' }}>
@@ -289,15 +248,11 @@ const Attendance = () => {
         <p className="text-sm mb-5" style={{ color: c.textMuted }}>Your available leave days</p>
 
         <div className="space-y-3">
-<<<<<<< HEAD
-          {[ 
+          {[
             { type: 'Casual Leave', balance: 0, color: '#7c3aed', icon: '🌴' },
             { type: 'Sick Leave',   balance: 0, color: '#0ea5e9', icon: '🏥' },
             { type: 'Earned Leave', balance: 0, color: '#10b981', icon: '⭐' },
           ].map(({ type, balance, color, icon }) => (
-=======
-          {MOCK_LEAVE_BALANCE.map(({ type, balance, color, icon }) => (
->>>>>>> 93b8165bd87c5360229d96013264986a1782586d
             <div key={type}
               style={{
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between',

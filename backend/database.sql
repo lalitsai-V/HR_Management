@@ -41,8 +41,6 @@ CREATE TABLE activity_logs (
   employee_id VARCHAR(50) REFERENCES employees(emp_id) ON DELETE CASCADE,
   timestamp TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
-<<<<<<< HEAD
-
 -- Create attendance table
 CREATE TABLE attendance (
   id SERIAL PRIMARY KEY,
@@ -54,5 +52,19 @@ CREATE TABLE attendance (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   CONSTRAINT unique_attendance_per_day UNIQUE (user_id, date)
 );
-=======
->>>>>>> 93b8165bd87c5360229d96013264986a1782586d
+
+-- Create payroll table
+CREATE TABLE payroll (
+  id SERIAL PRIMARY KEY,
+  emp_id VARCHAR(50) REFERENCES employees(emp_id) ON DELETE CASCADE,
+  month VARCHAR(7) NOT NULL, -- YYYY-MM
+  basic_salary NUMERIC NOT NULL,
+  allowances NUMERIC DEFAULT 0,
+  deductions NUMERIC DEFAULT 0,
+  net_pay NUMERIC NOT NULL,
+  payment_date DATE,
+  status VARCHAR(20) DEFAULT 'draft',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  CONSTRAINT unique_payroll_per_month UNIQUE (emp_id, month)
+);

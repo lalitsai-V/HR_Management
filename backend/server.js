@@ -5,10 +5,8 @@ import authRoutes from './routes/authRoutes.js';
 import employeeRoutes from './routes/employeeRoutes.js';
 import activityRoutes from './routes/activityRoutes.js';
 import leaveRoutes from './routes/Leaveroutes.js';
-<<<<<<< HEAD
 import attendanceRoutes from './routes/attendanceRoutes.js';
-=======
->>>>>>> 93b8165bd87c5360229d96013264986a1782586d
+import payrollRoutes from './routes/payrollRoutes.js';
 
 dotenv.config();
 
@@ -22,10 +20,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/employees', employeeRoutes);
 app.use('/api/activity', activityRoutes);
 app.use('/api/leave-requests', leaveRoutes); 
-<<<<<<< HEAD
 app.use('/api/attendance', attendanceRoutes);
-=======
->>>>>>> 93b8165bd87c5360229d96013264986a1782586d
+app.use('/api/payroll', payrollRoutes);
 
 app.get('/', (req, res) => {
   res.send('VisoVersa API Running');
