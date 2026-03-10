@@ -47,9 +47,7 @@ router.get('/', protect, adminOnly, async (req, res) => {
   try {
     let query = supabase
       .from('payroll')
-      .select(
-        'id, emp_id, month, basic_salary, allowances, deductions, net_pay, payment_date, status, employees(name, department)'
-      )
+      .select('id, emp_id, month, basic_salary, allowances, deductions, net_pay, payment_date, status')
       .order('month', { ascending: false })
       .order('emp_id', { ascending: true });
 
