@@ -8,7 +8,7 @@ const pad = (n) => String(n).padStart(2, '0');
 const STATUS_OPTIONS = [
   { key: 'present', label: 'Present', color: '#10b981' },
   { key: 'absent',  label: 'Absent',  color: '#94a3b8' },
-  { key: 'late',    label: 'Late',    color: '#f59e0b' },
+  { key: 'leave',   label: 'On Leave', color: '#ec4899' },
 ];
 
 const AdminAttendance = () => {
@@ -71,6 +71,8 @@ const AdminAttendance = () => {
   }, [date]);
 
   const updateStatus = async (emp_id, status) => {
+    if (status === 'leave') return; // Leave days are not editable
+
     setSavingId(emp_id);
     try {
       await api.post('/attendance/mark', { emp_id, date, status });
@@ -79,7 +81,8 @@ const AdminAttendance = () => {
       );
     } catch (err) {
       console.error('Failed to mark attendance', err);
-      alert('Failed to mark attendance');
+      const msg = err.response?.data?.message || err.message || 'Failed to mark attendance';
+      alert(msg);
     } finally {
       setSavingId(null);
     }
@@ -87,7 +90,6 @@ const AdminAttendance = () => {
 
   const presentCount = rows.filter((r) => r.status === 'present').length;
   const absentCount = rows.filter((r) => r.status === 'absent').length;
-  const lateCount = rows.filter((r) => r.status === 'late').length;
 
   return (
     <div className="space-y-6" style={{ fontFamily: 'DM Sans, sans-serif' }}>
@@ -138,7 +140,7 @@ const AdminAttendance = () => {
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(3,1fr)',
+          gridTemplateColumns: 'repeat(2,1fr)',
           gap: 16,
         }}
       >
@@ -156,13 +158,6 @@ const AdminAttendance = () => {
             color: '#94a3b8',
             bg: 'rgba(148,163,184,0.15)',
             icon: XCircle,
-          },
-          {
-            label: 'Late',
-            value: lateCount,
-            color: '#f59e0b',
-            bg: 'rgba(245,158,11,0.08)',
-            icon: Clock,
           },
         ].map(({ label, value, color, bg, icon: Icon }) => (
           <div
@@ -287,32 +282,45 @@ const AdminAttendance = () => {
                 </div>
 
                 <div className="flex items-center gap-2 flex-shrink-0">
-                  {STATUS_OPTIONS.map((opt) => (
-                    <button
-                      key={opt.key}
-                      type="button"
-                      onClick={() => updateStatus(row.emp_id, opt.key)}
-                      disabled={savingId === row.emp_id}
-                      className="px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-150"
+                  {row.status === 'leave' ? (
+                    <span
+                      className="px-3 py-1.5 rounded-full text-xs font-semibold"
                       style={{
-                        border: `1px solid ${
-                          row.status === opt.key ? opt.color : c.border
-                        }`,
-                        background:
-                          row.status === opt.key
-                            ? `${opt.color}20`
-                            : 'transparent',
-                        color:
-                          row.status === opt.key ? opt.color : c.textMuted,
-                        opacity:
-                          savingId === row.emp_id && row.status !== opt.key
-                            ? 0.6
-                            : 1,
+                        border: `1px solid ${STATUS_OPTIONS.find((o) => o.key === 'leave')?.color || '#ec4899'}`,
+                        background: 'rgba(236,72,153,0.12)',
+                        color: '#ec4899',
                       }}
                     >
-                      {opt.label}
-                    </button>
-                  ))}
+                      On Leave
+                    </span>
+                  ) : (
+                    STATUS_OPTIONS.filter((opt) => opt.key !== 'leave').map((opt) => (
+                      <button
+                        key={opt.key}
+                        type="button"
+                        onClick={() => updateStatus(row.emp_id, opt.key)}
+                        disabled={savingId === row.emp_id}
+                        className="px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-150"
+                        style={{
+                          border: `1px solid ${
+                            row.status === opt.key ? opt.color : c.border
+                          }`,
+                          background:
+                            row.status === opt.key
+                              ? `${opt.color}20`
+                              : 'transparent',
+                          color:
+                            row.status === opt.key ? opt.color : c.textMuted,
+                          opacity:
+                            savingId === row.emp_id && row.status !== opt.key
+                              ? 0.6
+                              : 1,
+                        }}
+                      >
+                        {opt.label}
+                      </button>
+                    ))
+                  )}
                 </div>
               </div>
             ))}

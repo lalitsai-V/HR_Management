@@ -68,12 +68,15 @@ const CompleteProfile = () => {
       const method = formData.emp_id ? 'put' : 'post';
       await api[method](endpoint, {
         ...formData,
-        salary: formData.salary || null,
+        salary: formData.salary === '' ? null : formData.salary,
       });
 
       navigate('/');
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to save profile');
+      console.error('CompleteProfile save error:', err);
+      const backendMessage = err.response?.data?.message;
+      const fallback = err.message || 'Failed to save profile';
+      setError(backendMessage || fallback);
     } finally {
       setSaving(false);
     }

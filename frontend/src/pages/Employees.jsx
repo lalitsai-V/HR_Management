@@ -40,7 +40,32 @@ const Employees = () => {
   const itemsPerPage                          = 10;
   const [isModalOpen, setIsModalOpen]         = useState(false);
   const [editingEmployee, setEditingEmployee] = useState(null);
-  const [formData, setFormData]               = useState({ name: '', company: 'VaisoVerse Technology', status: 'Active', profile_image: '' });
+  const [formData, setFormData]               = useState({
+    name: '',
+    company: 'VaisoVerse Technology',
+    status: 'Active',
+    profile_image: '',
+    leave_balance: 12,
+    phone: '',
+    department: '',
+    designation: '',
+    date_of_joining: '',
+    aadhaar: '',
+    pan: '',
+    bank_name: '',
+    ifsc_code: '',
+    branch_name: '',
+    account_number: '',
+    salary: '',
+    aadhaar_doc: '',
+  });
+
+  const toBase64 = (file) => new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
 
   const handleExport = async () => {
     try {
@@ -72,10 +97,46 @@ const Employees = () => {
   const openModal = (emp = null) => {
     if (emp) {
       setEditingEmployee(emp);
-      setFormData({ name: emp.name, company: emp.company, status: emp.status, profile_image: emp.profile_image || '' });
+      setFormData({
+        name: emp.name,
+        company: emp.company,
+        status: emp.status,
+        profile_image: emp.profile_image || '',
+        leave_balance: emp.leave_balance ?? 12,
+        phone: emp.phone || '',
+        department: emp.department || '',
+        designation: emp.designation || '',
+        date_of_joining: emp.date_of_joining ? emp.date_of_joining.split('T')[0] : '',
+        aadhaar: emp.aadhaar || '',
+        pan: emp.pan || '',
+        bank_name: emp.bank_name || '',
+        ifsc_code: emp.ifsc_code || '',
+        branch_name: emp.branch_name || '',
+        account_number: emp.account_number || '',
+        salary: emp.salary || '',
+        aadhaar_doc: emp.aadhaar_doc || '',
+      });
     } else {
       setEditingEmployee(null);
-      setFormData({ name: '', company: 'VaisoVerse Technology', status: 'Active', profile_image: '' });
+      setFormData({
+        name: '',
+        company: 'VaisoVerse Technology',
+        status: 'Active',
+        profile_image: '',
+        leave_balance: 12,
+        phone: '',
+        department: '',
+        designation: '',
+        date_of_joining: '',
+        aadhaar: '',
+        pan: '',
+        bank_name: '',
+        ifsc_code: '',
+        branch_name: '',
+        account_number: '',
+        salary: '',
+        aadhaar_doc: '',
+      });
     }
     setIsModalOpen(true);
   };
@@ -84,11 +145,22 @@ const Employees = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const payload = { ...formData };
+
     try {
+      // If user selected a file for profile_image or aadhaar_doc, convert to base64
+      if (payload.profile_image instanceof File) {
+        payload.profile_image = await toBase64(payload.profile_image);
+      }
+      if (payload.aadhaar_doc instanceof File) {
+        payload.aadhaar_doc = await toBase64(payload.aadhaar_doc);
+      }
+
       if (editingEmployee) {
-        await api.put(`/employees/${editingEmployee.emp_id}`, formData);
+        await api.put(`/employees/${editingEmployee.emp_id}`, payload);
       } else {
-        await api.post('/employees', formData);
+        await api.post('/employees', payload);
       }
       closeModal();
       refreshEmployees();
@@ -219,7 +291,12 @@ const Employees = () => {
                           style={{ background: 'rgba(124,58,237,0.1)', color: '#7c3aed' }}
                         >
                           {emp.profile_image
-                            ? <img src={emp.profile_image} alt={emp.name} className="w-full h-full object-cover" />
+                            ? <img
+                                src={emp.profile_image}
+                                alt={emp.name}
+                                className="w-full h-full"
+                                style={{ objectFit: 'contain', objectPosition: 'center' }}
+                              />
                             : emp.name.charAt(0).toUpperCase()
                           }
                         </div>
@@ -402,24 +479,173 @@ const Employees = () => {
               </div>
 
               <div>
-                <FieldLabel>
-                  Profile Image URL{' '}
-                  <span style={{ color: '#94a3b8', fontWeight: 400 }}>(Optional)</span>
-                </FieldLabel>
-                <input type="url" value={formData.profile_image}
-                  onChange={(e) => setFormData({ ...formData, profile_image: e.target.value })}
-                  className="input-field" placeholder="https://example.com/photo.jpg" />
+                <FieldLabel>Leave Balance (days)</FieldLabel>
+                <input
+                  type="number"
+                  min={0}
+                  value={formData.leave_balance ?? 0}
+                  onChange={(e) => setFormData({ ...formData, leave_balance: Number(e.target.value) })}
+                  className="input-field"
+                  placeholder="12"
+                />
               </div>
 
-              <div className="flex justify-end gap-2.5 pt-2">
-                <button type="button" onClick={closeModal}
-                  className="px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-150"
-                  style={{ color: '#64748b', background: 'rgba(148,163,184,0.08)', border: '1px solid rgba(148,163,184,0.15)' }}>
-                  Cancel
-                </button>
-                <button type="submit" className="btn-primary px-5 py-2.5 text-sm">
-                  {editingEmployee ? 'Save Changes' : 'Create Employee'}
-                </button>
+              <div>
+                <FieldLabel>
+                  Profile Image (Optional)
+                </FieldLabel>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    setFormData((prev) => ({ ...prev, profile_image: file }));
+                  }}
+                  className="input-field"
+                />
+                {formData.profile_image && typeof formData.profile_image === 'string' && (
+                  <p className="text-xs mt-1" style={{ color: '#94a3b8' }}>
+                    Current image is already set.
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <h3 className="text-sm font-semibold mb-2" style={{ color: '#64748b' }}>
+                  Additional details
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <FieldLabel>Phone</FieldLabel>
+                    <input
+                      type="tel"
+                      value={formData.phone}
+                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                      className="input-field"
+                      placeholder="e.g. +1 555 123 4567"
+                    />
+                  </div>
+                  <div>
+                    <FieldLabel>Date of Joining</FieldLabel>
+                    <input
+                      type="date"
+                      value={formData.date_of_joining}
+                      onChange={(e) => setFormData({ ...formData, date_of_joining: e.target.value })}
+                      className="input-field"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+                  <div>
+                    <FieldLabel>Aadhaar No</FieldLabel>
+                    <input
+                      type="text"
+                      value={formData.aadhaar}
+                      onChange={(e) => setFormData({ ...formData, aadhaar: e.target.value })}
+                      className="input-field"
+                      placeholder="1234 5678 9012"
+                    />
+                  </div>
+                  <div>
+                    <FieldLabel>PAN No</FieldLabel>
+                    <input
+                      type="text"
+                      value={formData.pan}
+                      onChange={(e) => setFormData({ ...formData, pan: e.target.value })}
+                      className="input-field"
+                      placeholder="ABCDE1234F"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+                  <div>
+                    <FieldLabel>Bank Name</FieldLabel>
+                    <input
+                      type="text"
+                      value={formData.bank_name}
+                      onChange={(e) => setFormData({ ...formData, bank_name: e.target.value })}
+                      className="input-field"
+                      placeholder="e.g. State Bank"
+                    />
+                  </div>
+                  <div>
+                    <FieldLabel>IFSC Code</FieldLabel>
+                    <input
+                      type="text"
+                      value={formData.ifsc_code}
+                      onChange={(e) => setFormData({ ...formData, ifsc_code: e.target.value })}
+                      className="input-field"
+                      placeholder="e.g. SBIN0001234"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+                  <div>
+                    <FieldLabel>Branch</FieldLabel>
+                    <input
+                      type="text"
+                      value={formData.branch_name}
+                      onChange={(e) => setFormData({ ...formData, branch_name: e.target.value })}
+                      className="input-field"
+                      placeholder="e.g. Main Branch"
+                    />
+                  </div>
+                  <div>
+                    <FieldLabel>Account Number</FieldLabel>
+                    <input
+                      type="text"
+                      value={formData.account_number}
+                      onChange={(e) => setFormData({ ...formData, account_number: e.target.value })}
+                      className="input-field"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+                  <div>
+                    <FieldLabel>Salary</FieldLabel>
+                    <input
+                      type="number"
+                      value={formData.salary}
+                      onChange={(e) => setFormData({ ...formData, salary: e.target.value })}
+                      className="input-field"
+                      placeholder="e.g. 50000"
+                    />
+                  </div>
+                  <div>
+                    <FieldLabel>Aadhaar Document (Optional)</FieldLabel>
+                    <input
+                      type="file"
+                      accept="image/*,application/pdf"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        setFormData((prev) => ({ ...prev, aadhaar_doc: file }));
+                      }}
+                      className="input-field"
+                    />
+                    {formData.aadhaar_doc && typeof formData.aadhaar_doc === 'string' && (
+                      <p className="text-xs mt-1" style={{ color: '#94a3b8' }}>
+                        Document uploaded.
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex justify-end gap-2.5 pt-2">
+                  <button type="button" onClick={closeModal}
+                    className="px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-150"
+                    style={{ color: '#64748b', background: 'rgba(148,163,184,0.08)', border: '1px solid rgba(148,163,184,0.15)' }}>
+                    Cancel
+                  </button>
+                  <button type="submit" className="btn-primary px-5 py-2.5 text-sm">
+                    {editingEmployee ? 'Save Changes' : 'Create Employee'}
+                  </button>
+                </div>
               </div>
             </form>
           </div>

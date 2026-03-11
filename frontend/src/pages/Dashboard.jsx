@@ -38,6 +38,7 @@ const StatCard = ({ icon: Icon, title, value, trend, accent, accentBg }) => (
 
 const Dashboard = () => {
   const { user } = useAuth();
+  const isAdmin = user?.role === 'admin';
   const { employees, loading } = useEmployees();
 
   const stats = useMemo(() => {
@@ -117,7 +118,9 @@ const Dashboard = () => {
 
       {/* Stat cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        <StatCard icon={Users}     title="Total Employees" value={stats.totalEmployees} trend="+12% from last month" accent="#7c3aed" accentBg="rgba(124,58,237,0.08)" />
+        {isAdmin && (
+          <StatCard icon={Users} title="Total Employees" value={stats.totalEmployees} trend="+12% from last month" accent="#7c3aed" accentBg="rgba(124,58,237,0.08)" />
+        )}
         <StatCard icon={Building2} title="Departments"     value={stats.totalCompanies} trend="Across all teams"    accent="#4f46e5" accentBg="rgba(79,70,229,0.08)"  />
         <StatCard icon={TrendingUp} title="Active"         value={stats.activeEmployees} trend="Currently working" accent="#10b981" accentBg="rgba(16,185,129,0.08)"  />
         <StatCard icon={UserPlus}  title="Recently Added"  value={stats.recentAdded}    trend="In the last 7 days" accent="#f59e0b" accentBg="rgba(245,158,11,0.08)"  />

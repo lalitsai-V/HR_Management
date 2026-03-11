@@ -27,6 +27,7 @@ CREATE TABLE employees (
   branch_name VARCHAR(255),
   account_number VARCHAR(100),
   salary NUMERIC,
+  leave_balance NUMERIC DEFAULT 12,
   aadhaar_doc TEXT,
   status VARCHAR(50) DEFAULT 'Active' NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),

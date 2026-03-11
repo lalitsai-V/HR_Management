@@ -62,6 +62,9 @@ function App() {
                 <Route path="attendance"  element={<UserRoute><Attendance /></UserRoute>} />
                 <Route path="apply-leave" element={<UserRoute><ApplyLeave /></UserRoute>} />
 
+                {/* User profile (any logged-in user) */}
+                <Route path="profile" element={<PrivateRoute><EmployeeProfile /></PrivateRoute>} />
+
                 {/* Profile completion (any logged-in user) */}
                 <Route path="complete-profile" element={<PrivateRoute><CompleteProfile /></PrivateRoute>} />
               </Route>

@@ -48,7 +48,6 @@ const LeaveApproval = () => {
   };
 
   const filtered      = filter === 'all' ? requests : requests.filter(r => r.status === filter);
-  const pendingCount  = requests.filter(r => r.status === 'pending').length;
   const approvedCount = requests.filter(r => r.status === 'approved').length;
   const rejectedCount = requests.filter(r => r.status === 'rejected').length;
 
@@ -79,9 +78,8 @@ const LeaveApproval = () => {
       </div>
 
       {/* Summary cards */}
-      <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:16 }}>
+      <div style={{ display:'grid', gridTemplateColumns:'repeat(2,1fr)', gap:16 }}>
         {[
-          { label:'Pending',  value:pendingCount,  color:'#f59e0b', bg:'rgba(245,158,11,0.08)',  icon:Clock        },
           { label:'Approved', value:approvedCount, color:'#10b981', bg:'rgba(16,185,129,0.08)',  icon:CheckCircle2 },
           { label:'Rejected', value:rejectedCount, color:'#ef4444', bg:'rgba(239,68,68,0.08)',   icon:XCircle      },
         ].map(({ label, value, color, bg, icon:Icon }) => (
@@ -100,7 +98,7 @@ const LeaveApproval = () => {
 
       {/* Filter tabs */}
       <div style={{ display:'flex', gap:8 }}>
-        {['all','pending','approved','rejected'].map(f => (
+        {['all','approved','rejected'].map(f => (
           <button key={f} onClick={() => setFilter(f)}
             style={{ padding:'6px 16px', borderRadius:10, fontSize:13, fontWeight:500,
               cursor:'pointer', transition:'all 0.15s', textTransform:'capitalize',

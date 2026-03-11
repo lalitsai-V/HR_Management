@@ -1,6 +1,11 @@
 import { supabase } from '../config/supabase.js';
 import { createObjectCsvStringifier } from 'csv-writer';
 
+const isMissingColumnError = (err, column) => {
+  const msg = (err?.message || err?.toString() || '').toLowerCase();
+  return msg.includes(column.toLowerCase()) && (msg.includes('could not find') || msg.includes('does not exist'));
+};
+
 // Log activity helper
 const logActivity = async (adminName, action, employeeId) => {
   try {
@@ -16,12 +21,30 @@ const logActivity = async (adminName, action, employeeId) => {
 
 export const getEmployees = async (req, res) => {
   try {
-    const { data: employees, error } = await supabase
-      .from('employees')
-      .select('*')
-      .order('created_at', { ascending: false });
+    let employees;
 
-    if (error) throw error;
+    try {
+      const { data, error } = await supabase
+        .from('employees')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      employees = data;
+    } catch (err) {
+      if (isMissingColumnError(err, 'leave_balance')) {
+        const { data, error } = await supabase
+          .from('employees')
+          .select('emp_id, name, email, phone, company, department, designation, date_of_joining, aadhaar, pan, bank_name, ifsc_code, branch_name, account_number, salary, aadhaar_doc, status, created_at, profile_image, user_id')
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        employees = data;
+      } else {
+        throw err;
+      }
+    }
+
     res.json(employees);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -30,13 +53,32 @@ export const getEmployees = async (req, res) => {
 
 export const getMyEmployee = async (req, res) => {
   try {
-    const { data: employee, error } = await supabase
-      .from('employees')
-      .select('*')
-      .eq('user_id', req.user.id)
-      .maybeSingle();
+    let employee;
 
-    if (error) throw error;
+    try {
+      const { data, error } = await supabase
+        .from('employees')
+        .select('*')
+        .eq('user_id', req.user.id)
+        .maybeSingle();
+
+      if (error) throw error;
+      employee = data;
+    } catch (err) {
+      if (isMissingColumnError(err, 'leave_balance')) {
+        const { data, error } = await supabase
+          .from('employees')
+          .select('emp_id, name, email, phone, company, department, designation, date_of_joining, aadhaar, pan, bank_name, ifsc_code, branch_name, account_number, salary, aadhaar_doc, status, created_at, profile_image, user_id')
+          .eq('user_id', req.user.id)
+          .maybeSingle();
+
+        if (error) throw error;
+        employee = data;
+      } else {
+        throw err;
+      }
+    }
+
     if (!employee) return res.status(404).json({ message: 'Employee profile not found' });
 
     res.json(employee);
@@ -80,9 +122,12 @@ export const createEmployee = async (req, res) => {
     branch_name,
     account_number,
     salary,
+    leave_balance = 12,
     aadhaar_doc,
     user_id: providedUserId,
   } = req.body;
+
+  const normalize = (v) => (v === '' ? null : v);
 
   if (company !== 'VaisoVerse Technology' && company !== 'We Marketing Experts') {
     return res.status(400).json({ message: 'Invalid company selection.' });
@@ -126,33 +171,73 @@ export const createEmployee = async (req, res) => {
       }
     }
 
-    const { data: employee, error } = await supabase
-      .from('employees')
-      .insert([{
-        emp_id,
-        name,
-        email: email || req.user.email,
-        company,
-        status: status || 'Active',
-        profile_image,
-        phone,
-        department,
-        designation,
-        date_of_joining,
-        aadhaar,
-        pan,
-        bank_name,
-        ifsc_code,
-        branch_name,
-        account_number,
-        salary,
-        aadhaar_doc,
-        user_id,
-      }])
-      .select('*')
-      .single();
+    let employee;
 
-    if (error) throw error;
+    try {
+      const { data, error } = await supabase
+        .from('employees')
+        .insert([{
+          emp_id,
+          name,
+          email: email || req.user.email,
+          company,
+          status: status || 'Active',
+          profile_image,
+          phone,
+          department,
+          designation,
+          date_of_joining: normalize(date_of_joining),
+          aadhaar,
+          pan,
+          bank_name,
+          ifsc_code,
+          branch_name,
+          account_number,
+          salary: normalize(salary),
+          leave_balance,
+          aadhaar_doc,
+          user_id,
+        }])
+        .select('*')
+        .single();
+
+      if (error) throw error;
+      employee = data;
+    } catch (err) {
+      // If the database does not have a leave_balance column, retry without it.
+      if (isMissingColumnError(err, 'leave_balance')) {
+        const { data, error } = await supabase
+          .from('employees')
+          .insert([{
+            emp_id,
+            name,
+            email: email || req.user.email,
+            company,
+            status: status || 'Active',
+            profile_image,
+            phone,
+            department,
+            designation,
+            date_of_joining: normalize(date_of_joining),
+            aadhaar,
+            pan,
+            bank_name,
+            ifsc_code,
+            branch_name,
+            account_number,
+            salary: normalize(salary),
+            aadhaar_doc,
+            user_id,
+          }])
+          .select('*')
+          .single();
+
+        if (error) throw error;
+        employee = data;
+      } else {
+        throw err;
+      }
+    }
 
     await logActivity(req.user.name, 'Employee added', emp_id);
     res.status(201).json(employee);
@@ -179,6 +264,7 @@ export const updateEmployee = async (req, res) => {
     branch_name,
     account_number,
     salary,
+    leave_balance,
     aadhaar_doc,
   } = req.body;
 
@@ -202,32 +288,71 @@ export const updateEmployee = async (req, res) => {
       return res.status(403).json({ message: 'Not authorized to update this profile' });
     }
 
-    const { data: employee, error } = await supabase
-      .from('employees')
-      .update({
-        name,
-        email,
-        company,
-        status,
-        profile_image,
-        phone,
-        department,
-        designation,
-        date_of_joining,
-        aadhaar,
-        pan,
-        bank_name,
-        ifsc_code,
-        branch_name,
-        account_number,
-        salary,
-        aadhaar_doc,
-      })
-      .eq('emp_id', existingEmployee.emp_id)
-      .select('*')
-      .maybeSingle();
+    const normalize = (v) => (v === '' ? null : v);
+    let employee;
 
-    if (error) throw error;
+    try {
+      const { data, error } = await supabase
+        .from('employees')
+        .update({
+          name,
+          email,
+          company,
+          status,
+          profile_image,
+          phone,
+          department,
+          designation,
+          date_of_joining: normalize(date_of_joining),
+          aadhaar,
+          pan,
+          bank_name,
+          ifsc_code,
+          branch_name,
+          account_number,
+          salary: normalize(salary),
+          leave_balance,
+          aadhaar_doc,
+        })
+        .eq('emp_id', existingEmployee.emp_id)
+        .select('*')
+        .maybeSingle();
+
+      if (error) throw error;
+      employee = data;
+    } catch (err) {
+      if (isMissingColumnError(err, 'leave_balance')) {
+        const { data, error } = await supabase
+          .from('employees')
+          .update({
+            name,
+            email,
+            company,
+            status,
+            profile_image,
+            phone,
+            department,
+            designation,
+            date_of_joining: normalize(date_of_joining),
+            aadhaar,
+            pan,
+            bank_name,
+            ifsc_code,
+            branch_name,
+            account_number,
+            salary: normalize(salary),
+            aadhaar_doc,
+          })
+          .eq('emp_id', existingEmployee.emp_id)
+          .select('*')
+          .maybeSingle();
+
+        if (error) throw error;
+        employee = data;
+      } else {
+        throw err;
+      }
+    }
 
     await logActivity(req.user.name, 'Employee edited', req.params.id);
     res.json(employee);

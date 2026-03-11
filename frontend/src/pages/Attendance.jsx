@@ -8,7 +8,6 @@ import api from '../services/api';
 const STATUS = {
   present: { color: '#10b981', label: 'Present'  },
   absent:  { color: '#94a3b8', label: 'Absent'   },
-  half:    { color: '#f59e0b', label: 'Half Day'  },
   leave:   { color: '#ec4899', label: 'Leave'     },
   holiday: { color: '#8b5cf6', label: 'Holiday'   },
 };
@@ -24,6 +23,9 @@ const Attendance = () => {
   const today = new Date();
   const [vd, setVd] = useState({ year: today.getFullYear(), month: today.getMonth() });
   const [attendance, setAttendance] = useState({});
+  const [leaveBalance, setLeaveBalance] = useState(0);
+  const [leaveUsed, setLeaveUsed] = useState(0);
+  const [leaveUsedByType, setLeaveUsedByType] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -70,27 +72,65 @@ const Attendance = () => {
   const leaveCount   = Object.entries(attendance).filter(([k, v]) => k.startsWith(prefix) && v === 'leave').length;
   const halfCount    = Object.entries(attendance).filter(([k, v]) => k.startsWith(prefix) && v === 'half').length;
 
-  // Load attendance whenever the visible month changes
+  // Load attendance + leave balance whenever the visible month changes
   useEffect(() => {
     const monthParam = `${year}-${pad(month + 1)}`;
     const fetchAttendance = async () => {
       setLoading(true);
       setError('');
       try {
-        const { data } = await api.get(`/attendance/me`, {
-          params: { month: monthParam },
-        });
+        const [attendanceResp, profileResp, leaveResp] = await Promise.all([
+          api.get(`/attendance/me`, { params: { month: monthParam } }),
+          api.get('/employees/me'),
+          api.get('/leave-requests'),
+        ]);
+
+        // Attendance map
         const map = {};
-        (data || []).forEach((row) => {
+        (attendanceResp.data || []).forEach((row) => {
           if (row.date && row.status) {
             map[row.date] = row.status;
           }
         });
         setAttendance(map);
+
+        // Profile and leave balance
+        const profile = profileResp.data || {};
+        setLeaveBalance(Number(profile.leave_balance ?? 0));
+
+        // Compute used leave based on approved leave requests
+        const normalizeLeaveType = (raw) => {
+          if (!raw || typeof raw !== 'string') return 'Other';
+          const v = raw.trim().toLowerCase();
+          if (v.includes('casual')) return 'Casual Leave';
+          if (v.includes('sick')) return 'Sick Leave';
+          if (v.includes('earn')) return 'Earned Leave';
+          return 'Other';
+        };
+
+        const initialByType = {
+          'Casual Leave': 0,
+          'Sick Leave': 0,
+          'Earned Leave': 0,
+        };
+
+        const usedByType = (leaveResp.data || [])
+          .filter((r) => r.status === 'approved')
+          .reduce((acc, r) => {
+            const key = normalizeLeaveType(r.leave_type);
+            acc[key] = (acc[key] || 0) + Number(r.total_days || 0);
+            return acc;
+          }, { ...initialByType });
+
+        const usedTotal = Object.values(usedByType).reduce((acc, v) => acc + v, 0);
+        setLeaveUsedByType(usedByType);
+        setLeaveUsed(usedTotal);
       } catch (err) {
-        console.error('Failed to load attendance', err);
+        console.error('Failed to load attendance/leave data', err);
         setError('Failed to load attendance for this month');
         setAttendance({});
+        setLeaveBalance(0);
+        setLeaveUsed(0);
       } finally {
         setLoading(false);
       }
@@ -118,11 +158,10 @@ const Attendance = () => {
       </div>
 
       {/* Stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '16px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: '16px' }}>
         {[
           { label: 'Present',  value: presentCount, color: '#10b981', bg: 'rgba(16,185,129,0.08)',  icon: CheckCircle2 },
           { label: 'On Leave', value: leaveCount,   color: '#ec4899', bg: 'rgba(236,72,153,0.08)',  icon: XCircle      },
-          { label: 'Half Day', value: halfCount,    color: '#f59e0b', bg: 'rgba(245,158,11,0.08)',  icon: MinusCircle  },
         ].map(({ label, value, color, bg, icon: Icon }) => (
           <div key={label} className="card p-4"
             style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -241,47 +280,62 @@ const Attendance = () => {
 
       {/* Leave Balance */}
       <div className="card p-6">
-        <h2 className="text-base font-bold mb-1"
-          style={{ fontFamily: 'Outfit, sans-serif', color: c.textPrimary }}>
-          Leave Balance
-        </h2>
-        <p className="text-sm mb-5" style={{ color: c.textMuted }}>Your available leave days</p>
+        <div className="flex items-start justify-between">
+          <div>
+            <h2 className="text-base font-bold mb-1"
+              style={{ fontFamily: 'Outfit, sans-serif', color: c.textPrimary }}>
+              Leave Balance
+            </h2>
+            <p className="text-sm" style={{ color: c.textMuted }}>Your available leave days</p>
+          </div>
+          <div className="text-right">
+            <p className="text-sm font-semibold" style={{ color: c.textPrimary }}>Used</p>
+            <p className="text-xl font-bold" style={{ color: '#ec4899' }}>{leaveUsed.toFixed(1)}</p>
+          </div>
+        </div>
 
-        <div className="space-y-3">
+        <div className="space-y-3 mt-4">
           {[
-            { type: 'Casual Leave', balance: 0, color: '#7c3aed', icon: '🌴' },
-            { type: 'Sick Leave',   balance: 0, color: '#0ea5e9', icon: '🏥' },
-            { type: 'Earned Leave', balance: 0, color: '#10b981', icon: '⭐' },
-          ].map(({ type, balance, color, icon }) => (
-            <div key={type}
-              style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                padding: '14px 16px', borderRadius: 14, cursor: 'pointer', transition: 'all 0.15s',
-                background: isDarkMode ? 'rgba(255,255,255,0.03)' : '#f8fafc',
-                border: `1px solid ${c.border}`,
-              }}
-              onMouseEnter={(e) => { e.currentTarget.style.borderColor = color; }}
-              onMouseLeave={(e) => { e.currentTarget.style.borderColor = c.border; }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <div style={{ width: 40, height: 40, borderRadius: 12, fontSize: 18,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  background: `${color}15`, border: `1px solid ${color}30`, flexShrink: 0 }}>
-                  {icon}
+            { type: 'Casual Leave', color: '#7c3aed', icon: '🌴' },
+            { type: 'Sick Leave',   color: '#0ea5e9', icon: '🏥' },
+            { type: 'Earned Leave', color: '#10b981', icon: '⭐' },
+          ].map(({ type, color, icon }) => {
+            const used = leaveUsedByType[type] ?? 0;
+            return (
+              <div key={type}
+                style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                  padding: '14px 16px', borderRadius: 14, cursor: 'pointer', transition: 'all 0.15s',
+                  background: isDarkMode ? 'rgba(255,255,255,0.03)' : '#f8fafc',
+                  border: `1px solid ${c.border}`,
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.borderColor = color; }}
+                onMouseLeave={(e) => { e.currentTarget.style.borderColor = c.border; }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <div style={{ width: 40, height: 40, borderRadius: 12, fontSize: 18,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    background: `${color}15`, border: `1px solid ${color}30`, flexShrink: 0 }}>
+                    {icon}
+                  </div>
+                  <div>
+                    <p style={{ fontSize: 14, fontWeight: 600, color: c.textPrimary }}>{type}</p>
+                    <p style={{ fontSize: 12, color: c.textFaint }}>Used / Remaining</p>
+                  </div>
                 </div>
-                <div>
-                  <p style={{ fontSize: 14, fontWeight: 600, color: c.textPrimary }}>{type}</p>
-                  <p style={{ fontSize: 12, color: c.textFaint }}>Available balance</p>
+                <div style={{ textAlign: 'right' }}>
+                  <p style={{ fontSize: 16, fontWeight: 700, color, fontFamily: 'Outfit, sans-serif' }}>
+                    {used.toFixed(1)}
+                  </p>
+                  <p style={{ fontSize: 11, color: c.textFaint }}>used</p>
+                  <p style={{ fontSize: 16, fontWeight: 700, color: '#22c55e', fontFamily: 'Outfit, sans-serif' }}>
+                    {leaveBalance.toFixed(1)}
+                  </p>
+                  <p style={{ fontSize: 11, color: c.textFaint }}>remaining</p>
                 </div>
               </div>
-              <div style={{ textAlign: 'right' }}>
-                <p style={{ fontSize: 22, fontWeight: 700, color, fontFamily: 'Outfit, sans-serif' }}>
-                  {balance.toFixed(2)}
-                </p>
-                <p style={{ fontSize: 11, color: c.textFaint }}>days</p>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>

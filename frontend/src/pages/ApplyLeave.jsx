@@ -46,6 +46,10 @@ const ApplyLeave = () => {
   const [loading, setLoading]     = useState(false);
   const [error, setError]         = useState('');
 
+  // Leave balance / user info
+  const [leaveBalance, setLeaveBalance] = useState(null);
+  const [balanceLoading, setBalanceLoading] = useState(true);
+
   // My requests state
   const [myRequests, setMyRequests]   = useState([]);
   const [reqLoading, setReqLoading]   = useState(true);
@@ -61,12 +65,26 @@ const ApplyLeave = () => {
     finally { setReqLoading(false); }
   };
 
-  useEffect(() => { fetchMyRequests(); }, []);
+  const fetchLeaveBalance = async () => {
+    setBalanceLoading(true);
+    try {
+      const { data } = await api.get('/employees/me');
+      setLeaveBalance(Number(data?.leave_balance ?? 0));
+    } catch (_) {
+      setLeaveBalance(null);
+    } finally {
+      setBalanceLoading(false);
+    }
+  };
+
+  useEffect(() => { fetchMyRequests(); fetchLeaveBalance(); }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.leaveType) return setError('Please select a leave type');
     if (totalDays === 0) return setError('Please select valid dates');
+    if (leaveBalance !== null && totalDays > leaveBalance) return setError(`You only have ${leaveBalance} day${leaveBalance === 1 ? '' : 's'} left`);
+
     setLoading(true);
     setError('');
     try {
@@ -75,13 +93,13 @@ const ApplyLeave = () => {
         leave_type:    form.leaveType,
         from_date:     form.from,
         to_date:       form.to,
-        total_days:    totalDays,
         reason:        form.reason,
         description:   form.description,
       });
       setSubmitted(true);
       setForm({ leaveType:'', from:'', to:'', reason:'', description:'' });
       fetchMyRequests(); // refresh list after submit
+      fetchLeaveBalance(); // refresh balance after submit (or rejection)
       setTimeout(() => setSubmitted(false), 4000);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to submit leave request');
@@ -115,17 +133,27 @@ const ApplyLeave = () => {
         <p className="text-sm mt-1 ml-10" style={{ color:c.textMuted }}>Submit a leave request for approval</p>
       </div>
 
-      {/* Success banner */}
-      {submitted && (
-        <div style={{ display:'flex', alignItems:'center', gap:12, padding:'14px 18px', borderRadius:16,
-          background:'rgba(16,185,129,0.08)', border:'1px solid rgba(16,185,129,0.2)' }}>
-          <CheckCircle2 size={20} style={{ color:'#10b981', flexShrink:0 }} />
-          <div>
-            <p style={{ fontSize:14, fontWeight:600, color:'#10b981' }}>Leave request submitted!</p>
-            <p style={{ fontSize:12, color:c.textMuted }}>Your request has been sent to admin for approval.</p>
-          </div>
+      {/* Leave balance */}
+      <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', gap:16 }}>
+        <div>
+          <h2 style={{ fontFamily:'Outfit,sans-serif', fontSize:16, fontWeight:700, color:c.textPrimary }}>
+            Leave Balance
+          </h2>
+          <p style={{ fontSize:12, color:c.textFaint, marginTop:2 }}>
+            {balanceLoading ? 'Loading balance…' : leaveBalance !== null ? `${leaveBalance} day${leaveBalance === 1 ? '' : 's'} remaining` : 'Unable to load balance.'}
+          </p>
         </div>
-      )}
+        {submitted && (
+          <div style={{ display:'flex', alignItems:'center', gap:12, padding:'14px 18px', borderRadius:16,
+            background:'rgba(16,185,129,0.08)', border:'1px solid rgba(16,185,129,0.2)' }}>
+            <CheckCircle2 size={20} style={{ color:'#10b981', flexShrink:0 }} />
+            <div>
+              <p style={{ fontSize:14, fontWeight:600, color:'#10b981' }}>Leave request submitted!</p>
+              <p style={{ fontSize:12, color:c.textMuted }}>Your request has been sent to admin for approval.</p>
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* Error */}
       {error && (

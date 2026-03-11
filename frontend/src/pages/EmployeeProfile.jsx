@@ -37,7 +37,8 @@ const EmployeeProfile = () => {
   useEffect(() => {
     const fetchEmployee = async () => {
       try {
-        const { data } = await api.get(`/employees/${id}`);
+        const endpoint = id ? `/employees/${id}` : '/employees/me';
+        const { data } = await api.get(endpoint);
         setEmployee(data);
       } catch {
         setError('Employee not found or unauthorized');
@@ -79,20 +80,22 @@ const EmployeeProfile = () => {
   const cfg = STATUS_CONFIG[employee.status] || STATUS_CONFIG['Active'];
   const StatusIcon = cfg.icon;
 
+  const backPath = id ? '/employees' : '/';
+
   return (
     <div className="max-w-3xl mx-auto space-y-5" style={{ fontFamily: 'DM Sans, sans-serif' }}>
       {/* Back */}
-      <button onClick={() => navigate('/employees')}
+      <button onClick={() => navigate(backPath)}
         className="flex items-center gap-2 text-sm font-medium transition-colors duration-150"
         style={{ color: '#94a3b8' }}
         onMouseEnter={(e) => { e.currentTarget.style.color = '#7c3aed'; }}
         onMouseLeave={(e) => { e.currentTarget.style.color = '#94a3b8'; }}
       >
-        <ArrowLeft size={16} /> Back to Directory
+        <ArrowLeft size={16} /> {id ? 'Back to Directory' : 'Back to Dashboard'}
       </button>
 
       {/* Profile card */}
-      <div className="card overflow-hidden">
+      <div className="card overflow-visible">
         {/* Banner */}
         <div className="h-36 relative"
           style={{ background: 'linear-gradient(135deg, #4c1d95 0%, #1e1b4b 40%, #0f172a 100%)' }}>
@@ -109,9 +112,14 @@ const EmployeeProfile = () => {
           {/* Avatar row */}
           <div className="flex justify-between items-end -mt-10 mb-5">
             <div className="w-20 h-20 rounded-2xl overflow-hidden flex-shrink-0"
-              style={{ border: '3px solid var(--color-surface-light)', boxShadow: '0 8px 24px rgba(124,58,237,0.25)' }}>
+              style={{ position: 'relative', zIndex: 10, border: '3px solid var(--color-surface-light)', boxShadow: '0 8px 24px rgba(124,58,237,0.25)' }}>
               {employee.profile_image ? (
-                <img src={employee.profile_image} alt={employee.name} className="w-full h-full object-cover" />
+                <img
+                  src={employee.profile_image}
+                  alt={employee.name}
+                  className="w-full h-full"
+                  style={{ objectFit: 'contain', objectPosition: 'center' }}
+                />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-2xl font-bold text-white"
                   style={{ background: 'linear-gradient(135deg, #7c3aed, #4f46e5)' }}>

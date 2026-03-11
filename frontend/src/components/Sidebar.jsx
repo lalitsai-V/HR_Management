@@ -1,13 +1,28 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, Users, Activity, LogOut, CalendarDays, FileText, ClipboardCheck, DollarSign } from 'lucide-react';
 import useAuth from '../context/useAuth'; // ✅ FIXED: default import from useAuth.js
+import api from '../services/api';
 import Logo from './Logo';
 
 const Sidebar = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const isAdmin = user?.role === 'admin';
+  const [profileImage, setProfileImage] = useState('');
+
+  React.useEffect(() => {
+    const loadProfile = async () => {
+      try {
+        const { data } = await api.get('/employees/me');
+        setProfileImage(data.profile_image || '');
+      } catch {
+        // ignore - user might not have a profile record yet
+      }
+    };
+
+    if (user) loadProfile();
+  }, [user]);
 
   const handleLogout = () => {
     logout();
@@ -97,11 +112,21 @@ const Sidebar = () => {
 
       {/* User & Logout */}
       <div className="p-3 space-y-1" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-        <div className="flex items-center gap-3 px-3 py-3 rounded-xl"
-          style={{ background: 'rgba(255,255,255,0.04)' }}>
+        <button
+          type="button"
+          onClick={() => navigate('/profile')}
+          className="w-full flex items-center gap-3 px-3 py-3 rounded-xl"
+          style={{ background: 'rgba(255,255,255,0.04)', textAlign: 'left' }}
+          onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; }}
+        >
           <div className="w-9 h-9 rounded-xl flex items-center justify-center text-sm font-bold text-white uppercase flex-shrink-0"
-            style={{ background: 'linear-gradient(135deg, #7c3aed, #4f46e5)' }}>
-            {user?.name?.charAt(0) || 'U'}
+            style={{ background: profileImage ? 'transparent' : 'linear-gradient(135deg, #7c3aed, #4f46e5)' }}>
+            {profileImage ? (
+              <img src={profileImage} alt={user?.name} className="w-full h-full rounded-xl object-cover" />
+            ) : (
+              (user?.name?.charAt(0) || 'U')
+            )}
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold text-white truncate" style={{ fontFamily: 'DM Sans, sans-serif' }}>
@@ -112,7 +137,7 @@ const Sidebar = () => {
               {user?.role}
             </p>
           </div>
-        </div>
+        </button>
 
         <button onClick={handleLogout}
           className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200"
