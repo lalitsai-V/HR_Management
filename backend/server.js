@@ -11,7 +11,18 @@ import payrollRoutes from './routes/payrollRoutes.js';
 dotenv.config();
 
 const app = express();
-app.use(cors());
+
+// CORS configuration for production
+const corsOptions = {
+  origin: [
+    'http://localhost:3000',
+    'http://localhost:5173',
+    'https://employee-management-system-pi-eight.vercel.app'
+  ],
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
