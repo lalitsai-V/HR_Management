@@ -43,7 +43,7 @@ VisoVersa is a modern, modular, production-ready full-stack application built wi
      ```bash
      cd frontend
      ```
-   - Ensure the API URL is matching your backend (default is `http://localhost:5000/api` in `frontend/src/services/api.js`).
+   - Ensure the API URL is matching your backend (default is `https://your-backend-name.onrender.com/api/login` in `frontend/src/services/api.js`).
    - Install dependencies and start the Vite dev server:
      ```bash
      npm install
