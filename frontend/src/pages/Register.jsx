@@ -135,7 +135,7 @@ const Register = () => {
         <div className="w-full max-w-sm">
           <div className="lg:hidden flex items-center gap-2.5 mb-8">
             <Logo size={28} />
-            <span className="text-lg font-bold" style={{ fontFamily: 'Outfit, sans-serif', color: '#0f172a' }}>
+            <span className="text-lg font-bold" style={{ fontFamily: 'Outfit, sans-serif', color: 'var(--color-text-light)' }}>
               VisoVersa
             </span>
           </div>
@@ -172,7 +172,7 @@ const Register = () => {
                 Full Name
               </label>
               <div className="relative">
-                <User className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" size={16} style={{ color: '#94a3b8' }} />
+                <User className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" size={16} style={{ color: 'var(--color-text-muted-light)' }} />
                 <input
                   type="text"
                   required
@@ -189,7 +189,7 @@ const Register = () => {
                 Email address
               </label>
               <div className="relative">
-                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" size={16} style={{ color: '#94a3b8' }} />
+                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" size={16} style={{ color: 'var(--color-text-muted-light)' }} />
                 <input
                   type="email"
                   required
@@ -206,7 +206,7 @@ const Register = () => {
                 Password
               </label>
               <div className="relative">
-                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" size={16} style={{ color: '#94a3b8' }} />
+                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" size={16} style={{ color: 'var(--color-text-muted-light)' }} />
                 <input
                   type="password"
                   required
@@ -223,7 +223,7 @@ const Register = () => {
                 Role
               </label>
               <div className="relative">
-                <Shield className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none z-10" size={16} style={{ color: '#94a3b8' }} />
+                <Shield className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none z-10" size={16} style={{ color: 'var(--color-text-muted-light)' }} />
                 <select
                   className="input-field pl-10 appearance-none cursor-pointer"
                   value={formData.role}

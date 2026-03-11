@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Eye, Edit, Trash2, Search, Plus, Download, X, Users } from 'lucide-react';
+import { Eye, Edit, Trash2, Search, Plus, Download, X, Users, RefreshCw } from 'lucide-react';
 import useAuth from '../context/useAuth';
 import { Link } from 'react-router-dom';
 import api from '../services/api';
@@ -219,6 +219,16 @@ const Employees = () => {
 
           {isAdmin && (
             <>
+              <button
+                onClick={() => refreshEmployees()}
+                title="Refresh data"
+                className="w-10 h-10 flex items-center justify-center rounded-xl transition-all duration-200 flex-shrink-0"
+                style={{ background: 'var(--color-surface-light)', border: '1px solid var(--color-border-light)', color: '#64748b' }}
+                onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'rgba(124,58,237,0.3)'; e.currentTarget.style.color = '#7c3aed'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--color-border-light)'; e.currentTarget.style.color = '#64748b'; }}
+              >
+                <RefreshCw size={16} />
+              </button>
               <button
                 onClick={handleExport}
                 title="Export CSV"

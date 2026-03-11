@@ -333,7 +333,7 @@ const CompleteProfile = () => {
             type="button"
             onClick={() => navigate('/')}
             className="px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-150"
-            style={{ color: '#64748b', background: 'rgba(148,163,184,0.08)', border: '1px solid rgba(148,163,184,0.15)' }}
+            style={{ color: 'var(--color-text-muted-light)', background: 'rgba(124,58,237,0.08)', border: '1px solid rgba(124,58,237,0.15)' }}
           >
             Skip
           </button>

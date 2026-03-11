@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Users, Building2, UserPlus, TrendingUp } from 'lucide-react';
+import { Users, Building2, UserPlus, TrendingUp, RefreshCw } from 'lucide-react';
 import useAuth from '../context/useAuth';           // ✅ FIXED: default import
 import useEmployees from '../context/useEmployees'; // ✅ FIXED: default import
 import {
@@ -39,7 +39,7 @@ const StatCard = ({ icon: Icon, title, value, trend, accent, accentBg }) => (
 const Dashboard = () => {
   const { user } = useAuth();
   const isAdmin = user?.role === 'admin';
-  const { employees, loading } = useEmployees();
+  const { employees, loading, refreshEmployees } = useEmployees();
 
   const stats = useMemo(() => {
     if (!employees || employees.length === 0) {
@@ -108,11 +108,24 @@ const Dashboard = () => {
             Here's what's happening with your team today.
           </p>
         </div>
-        <div className="hidden sm:flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-medium"
-          style={{ background: 'rgba(124,58,237,0.08)', border: '1px solid rgba(124,58,237,0.15)', color: '#7c3aed' }}>
-          <span className="w-1.5 h-1.5 rounded-full"
-            style={{ background: '#7c3aed', animation: 'pulse 2s infinite' }} />
-          Live data
+        <div className="flex items-center gap-2">
+          <button
+            onClick={refreshEmployees}
+            title="Refresh data"
+            className="hidden sm:flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-medium transition-all duration-200"
+            style={{ background: 'rgba(124,58,237,0.08)', border: '1px solid rgba(124,58,237,0.15)', color: '#7c3aed' }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(124,58,237,0.15)'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(124,58,237,0.08)'; }}
+          >
+            <RefreshCw size={14} />
+            Refresh
+          </button>
+          <div className="hidden sm:flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-medium"
+            style={{ background: 'rgba(124,58,237,0.08)', border: '1px solid rgba(124,58,237,0.15)', color: '#7c3aed' }}>
+            <span className="w-1.5 h-1.5 rounded-full"
+              style={{ background: '#7c3aed', animation: 'pulse 2s infinite' }} />
+            Live data
+          </div>
         </div>
       </div>
 

@@ -160,7 +160,7 @@ const Login = () => {
             <Logo size={28} />
             <span
               className="text-lg font-bold"
-              style={{ fontFamily: 'Outfit, sans-serif', color: '#0f172a' }}
+              style={{ fontFamily: 'Outfit, sans-serif', color: 'var(--color-text-light)' }}
             >
               VisoVersa
             </span>
@@ -169,11 +169,11 @@ const Login = () => {
           <div className="mb-8">
             <h1
               className="text-2xl font-bold"
-              style={{ fontFamily: 'Outfit, sans-serif', color: '#0f172a' }}
+              style={{ fontFamily: 'Outfit, sans-serif', color: 'var(--color-text-light)' }}
             >
               Welcome back
             </h1>
-            <p className="text-sm mt-1.5" style={{ color: '#64748b' }}>
+            <p className="text-sm mt-1.5" style={{ color: 'var(--color-text-muted-light)' }}>
               Sign in to continue to your workspace
             </p>
           </div>
@@ -194,14 +194,14 @@ const Login = () => {
 
           <form className="space-y-4" onSubmit={handleSubmit}>
             <div>
-              <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>
+              <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--color-text-light)' }}>
                 Email address
               </label>
               <div className="relative">
                 <Mail
                   className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none"
                   size={16}
-                  style={{ color: '#94a3b8' }}
+                  style={{ color: 'var(--color-text-muted-light)' }}
                 />
                 <input
                   type="email"
@@ -215,14 +215,14 @@ const Login = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1.5" style={{ color: '#374151' }}>
+              <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--color-text-light)' }}>
                 Password
               </label>
               <div className="relative">
                 <Lock
                   className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none"
                   size={16}
-                  style={{ color: '#94a3b8' }}
+                  style={{ color: 'var(--color-text-muted-light)' }}
                 />
                 <input
                   type="password"
