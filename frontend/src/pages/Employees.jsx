@@ -253,10 +253,10 @@ const Employees = () => {
           <table className="w-full text-left">
             <thead>
               <tr style={{ background: 'rgba(124,58,237,0.03)', borderBottom: '1px solid var(--color-border-light)' }}>
-                {['No.', 'Employee', 'ID', 'Company', 'Status', 'Actions'].map((h, i) => (
+                {['No.', 'Employee', 'ID', 'Company', 'Department', 'Designation', 'Status', 'Actions'].map((h, i) => (
                   <th
                     key={h}
-                    className={`py-3.5 px-5 text-xs font-semibold uppercase tracking-wider ${i === 5 ? 'text-right' : ''}`}
+                    className={`py-3.5 px-5 text-xs font-semibold uppercase tracking-wider ${i === 7 ? 'text-right' : ''}`}
                     style={{ color: '#94a3b8' }}
                   >
                     {h}
@@ -268,7 +268,7 @@ const Employees = () => {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan="5" className="py-16 text-center">
+                  <td colSpan="8" className="py-16 text-center">
                     <div className="flex justify-center gap-1.5">
                       {[0,1,2].map(i => (
                         <div key={i} className="w-2 h-2 rounded-full"
@@ -280,12 +280,12 @@ const Employees = () => {
                 </tr>
               ) : currentEmployees.length === 0 ? (
                 <tr>
-                  <td colSpan="5" className="py-16 text-center text-sm" style={{ color: '#94a3b8' }}>
+                  <td colSpan="8" className="py-16 text-center text-sm" style={{ color: '#94a3b8' }}>
                     No employees found.
                   </td>
                 </tr>
               ) : (
-                currentEmployees.map((emp) => (
+                currentEmployees.map((emp, index) => (
                   <tr
                     key={emp.emp_id}
                     className="transition-colors duration-150"
@@ -293,7 +293,14 @@ const Employees = () => {
                     onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(124,58,237,0.025)'; }}
                     onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
                   >
-                    {/* Name */}
+                    {/* No. */}
+                    <td className="py-3.5 px-5">
+                      <span className="text-sm font-medium" style={{ color: '#64748b' }}>
+                        {(currentPage - 1) * itemsPerPage + index + 1}
+                      </span>
+                    </td>
+
+                    {/* Employee */}
                     <td className="py-3.5 px-5">
                       <div className="flex items-center gap-3">
                         <div
@@ -316,15 +323,7 @@ const Employees = () => {
                       </div>
                     </td>
 
-                    {/* Normal ID */}
-                    <td className="py-3.5 px-5">
-                      <span className="text-xs font-medium px-2.5 py-1 rounded-lg"
-                        style={{ color: '#64748b' }}>
-                        {emp.id || '-'}
-                      </span>
-                    </td>
-
-                    {/* Emp ID */}
+                    {/* ID */}
                     <td className="py-3.5 px-5">
                       <span className="text-xs font-mono px-2.5 py-1 rounded-lg"
                         style={{ background: 'rgba(148,163,184,0.08)', border: '1px solid rgba(148,163,184,0.12)', color: '#64748b' }}>
@@ -335,6 +334,16 @@ const Employees = () => {
                     {/* Company */}
                     <td className="py-3.5 px-5 text-sm" style={{ color: 'var(--color-text-muted-light)' }}>
                       {emp.company}
+                    </td>
+
+                    {/* Department */}
+                    <td className="py-3.5 px-5 text-sm" style={{ color: 'var(--color-text-muted-light)' }}>
+                      {emp.department || '-'}
+                    </td>
+
+                    {/* Designation */}
+                    <td className="py-3.5 px-5 text-sm" style={{ color: 'var(--color-text-muted-light)' }}>
+                      {emp.designation || '-'}
                     </td>
 
                     {/* Status */}

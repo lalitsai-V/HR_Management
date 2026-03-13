@@ -15,8 +15,8 @@ const InfoCard = ({ icon: Icon, label, value, accent, accentBg }) => (
       <Icon size={20} style={{ color: accent }} />
     </div>
     <div>
-      <p className="text-xs font-medium text-gray-400 dark:text-gray-500 mb-1">{label}</p>
-      <p className="text-sm font-semibold text-gray-900 dark:text-white">{value}</p>
+      <p className="text-xs font-medium mb-1" style={{ color: 'var(--color-text-muted-light)' }}>{label}</p>
+      <p className="text-sm font-semibold" style={{ color: 'var(--color-text-light)' }}>{value}</p>
     </div>
   </div>
 );
@@ -135,11 +135,11 @@ const EmployeeProfile = () => {
 
           {/* Name & ID */}
           <div className="mb-7">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white capitalize"
-              style={{ fontFamily: 'Outfit, sans-serif' }}>{employee.name}</h1>
+            <h1 className="text-2xl font-bold capitalize"
+              style={{ fontFamily: 'Outfit, sans-serif', color: 'var(--color-text-light)' }}>{employee.name}</h1>
             <div className="flex items-center gap-2 mt-2">
               <IdCard size={14} style={{ color: '#94a3b8' }} />
-              <span className="text-sm text-gray-500 dark:text-gray-400">
+              <span className="text-sm" style={{ color: 'var(--color-text-muted-light)' }}>
                 Employee ID:{' '}
                 <span className="font-mono text-xs px-2 py-0.5 rounded-lg"
                   style={{ background: 'rgba(124,58,237,0.07)', border: '1px solid rgba(124,58,237,0.12)', color: '#7c3aed' }}>
@@ -147,8 +147,8 @@ const EmployeeProfile = () => {
                 </span>
               </span>
             </div>
-            <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-              Internal record ID: <span className="font-medium">#{employee.id || '-'}</span>
+            <div className="mt-2 text-sm" style={{ color: 'var(--color-text-muted-light)' }}>
+              Internal record ID: <span className="font-medium" style={{ color: 'var(--color-text-light)' }}>#{employee.id || '-'}</span>
             </div>
           </div>
 
@@ -178,12 +178,12 @@ const EmployeeProfile = () => {
                 <CircleCheck size={20} style={{ color: '#10b981' }} />
               </div>
               <div>
-                <p className="text-xs font-medium text-gray-400 dark:text-gray-500 mb-1">Aadhaar Document</p>
+                <p className="text-xs font-medium mb-1" style={{ color: 'var(--color-text-muted-light)' }}>Aadhaar Document</p>
                 {employee.aadhaar_doc ? (
                   <a href={employee.aadhaar_doc} target="_blank" rel="noopener noreferrer"
-                    className="text-sm font-semibold text-blue-600 hover:underline">View document</a>
+                    className="text-sm font-semibold hover:underline" style={{ color: '#2563eb' }}>View document</a>
                 ) : (
-                  <p className="text-sm font-semibold text-gray-900 dark:text-white">—</p>
+                  <p className="text-sm font-semibold" style={{ color: 'var(--color-text-light)' }}>—</p>
                 )}
               </div>
             </div>
