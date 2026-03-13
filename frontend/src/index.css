@@ -1,0 +1,156 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-primary: #7c3aed;
+  --color-primary-hover: #6d28d9;
+  --color-primary-light: #ede9fe;
+  --color-primary-glow: rgba(124, 58, 237, 0.35);
+
+  /* Light mode values (defaults) */
+  --color-background-light: #f2f4f9;
+  --color-surface-light: #ffffff;
+  --color-text-light: #0f172a;
+  --color-text-muted-light: #475569;
+  --color-border-light: #cbd5e1;
+
+  /* Dark mode static values (for reference only) */
+  --color-background-dark: #0d1117;
+  --color-surface-dark: #161d2f;
+  --color-text-dark: #e2e8f0;
+  --color-text-muted-dark: #8892a4;
+  --color-border-dark: #1e2d45;
+
+  --sidebar-bg-start: #0b1120;
+  --sidebar-bg-end: #111827;
+  --sidebar-border: rgba(255, 255, 255, 0.06);
+  --sidebar-text: #94a3b8;
+
+  --font-display: 'Outfit', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+}
+
+/* ─── DARK MODE: override ALL light variables so every inline style
+       using var(--color-*-light) automatically gets dark values ─────── */
+.dark {
+  --color-background-light: #0d1117;
+  --color-surface-light:    #161d2f;
+  --color-text-light:       #f1f5f9;
+  --color-text-muted-light: #cbd5e1;
+  --color-border-light:     #1f2a3a;
+  color-scheme: dark;
+}
+
+/* Native form controls in dark mode */
+.dark input,
+.dark textarea,
+.dark select {
+  color-scheme: dark;
+  background-color: var(--color-surface-light);
+  color: var(--color-text-light);
+  border-color: var(--color-border-light);
+}
+
+/* select option background in dark mode (browser-native, needs explicit bg) */
+.dark select option {
+  background-color: #1a2235;
+  color: #f1f5f9;
+}
+
+/* date/time picker dark UI */
+.dark input[type="date"],
+.dark input[type="time"] {
+  color-scheme: dark;
+}
+
+
+@layer base {
+  body {
+    @apply transition-colors duration-200 antialiased;
+    font-family: var(--font-body);
+    background-color: var(--color-background-light);
+    color: var(--color-text-light);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+  }
+
+  /* ── Cards ─────────────────────────────────────────────────────────── */
+  .card {
+    @apply rounded-2xl transition-colors duration-200 border;
+    background-color: var(--color-surface-light);
+    border-color: var(--color-border-light);
+    box-shadow:
+      0 1px 2px rgba(15, 23, 42, 0.04),
+      0 4px 20px rgba(15, 23, 42, 0.06);
+  }
+
+  .dark .card {
+    box-shadow:
+      0 1px 2px rgba(0, 0, 0, 0.3),
+      0 4px 20px rgba(0, 0, 0, 0.2);
+  }
+
+  .card-hover {
+    @apply card transition-all duration-200;
+  }
+
+  .card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 4px 8px rgba(15, 23, 42, 0.06),
+      0 12px 32px rgba(15, 23, 42, 0.1);
+  }
+
+  .dark .card-hover:hover {
+    box-shadow:
+      0 4px 8px rgba(0, 0, 0, 0.4),
+      0 12px 32px rgba(0, 0, 0, 0.3);
+  }
+
+  /* ── Input fields ───────────────────────────────────────────────────── */
+  .input-field {
+    @apply w-full px-4 py-2.5 mt-1 rounded-xl focus:outline-none focus:ring-2 focus:border-transparent border transition-all duration-200;
+    font-family: var(--font-body);
+    background-color: var(--color-surface-light);
+    border-color: var(--color-border-light);
+    color: var(--color-text-light);
+  }
+
+  .input-field:focus {
+    --tw-ring-color: var(--color-primary);
+  }
+
+  .input-field::placeholder {
+    color: var(--color-text-muted-light);
+  }
+
+  /* ── Primary button ─────────────────────────────────────────────────── */
+  .btn-primary {
+    @apply font-medium py-2.5 px-5 rounded-xl flex items-center justify-center gap-2 transition-all duration-200;
+    font-family: var(--font-body);
+    background: linear-gradient(135deg, #7c3aed, #6d28d9);
+    color: #ffffff;
+    box-shadow: 0 2px 8px rgba(124, 58, 237, 0.3);
+  }
+
+  .btn-primary:hover {
+    background: linear-gradient(135deg, #6d28d9, #5b21b6);
+    box-shadow: 0 4px 16px rgba(124, 58, 237, 0.45);
+    transform: translateY(-1px);
+  }
+
+  .btn-primary:active {
+    transform: translateY(0);
+  }
+
+  /* ── Scrollbar ──────────────────────────────────────────────────────── */
+  ::-webkit-scrollbar        { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track  { background: transparent; }
+  ::-webkit-scrollbar-thumb  { background: var(--color-border-light); border-radius: 99px; }
+}

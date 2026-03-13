@@ -1,0 +1,45 @@
+﻿[dotenv@17.3.1] injecting env (0) from .env -- tip: ΓÜÖ∩╕Å  override existing env vars with { override: true }
+node : file:///C:/Users
+/YUGESH%20R/OneDrive/De
+sktop/EMP/Employee_mana
+gement_system/backend/s
+erver.js:11
+At line:1 char:1
++ node server.js 2>&1 
+| Out-File -FilePath 
+.error.log -Encoding 
+utf8; G ...
++ ~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo     
+         : NotSpecifi  
+  ed: (file:///C:/Us   
+ er...nd/server.js:    
+11:String) [], Rem    
+oteException
+    + FullyQualifiedEr 
+   rorId : NativeComm  
+  andError
+ 
+dotenv.config();
+^
+
+ReferenceError: dotenv 
+is not defined
+    at file:///C:/Users
+/YUGESH%20R/OneDrive/De
+sktop/EMP/Employee_mana
+gement_system/backend/s
+erver.js:11:1
+    at ModuleJob.run (n
+ode:internal/modules/es
+m/module_job:430:25)
+    at async onImport.t
+racePromise.__proto__ (
+node:internal/modules/e
+sm/loader:661:26)
+    at async asyncRunEn
+tryPointWithESMLoader (
+node:internal/modules/r
+un_main:101:5)
+
+Node.js v24.14.0
