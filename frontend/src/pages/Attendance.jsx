@@ -158,7 +158,7 @@ const Attendance = () => {
       </div>
 
       {/* Stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: '16px' }}>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {[
           { label: 'Present',  value: presentCount, color: '#10b981', bg: 'rgba(16,185,129,0.08)',  icon: CheckCircle2 },
           { label: 'On Leave', value: leaveCount,   color: '#ec4899', bg: 'rgba(236,72,153,0.08)',  icon: XCircle      },

@@ -99,18 +99,32 @@ const Layout = () => {
     );
   }
 
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
+
   // ── All other pages: normal layout ───────────────────────────────────────
   return (
     <div
       className="flex h-screen overflow-hidden"
       style={{ background: 'var(--color-background-light)' }}
     >
-      <Sidebar />
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        <Header />
-        <main className="flex-1 overflow-y-auto p-8">
+      {/* Sidebar with mobile toggle state */}
+      <Sidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
+
+      {/* Main content area */}
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
+        <Header toggleSidebar={toggleSidebar} />
+        <main className="flex-1 overflow-y-auto p-4 sm:p-8">
           <Outlet />
         </main>
+
+        {/* Mobile Overlay */}
+        {isSidebarOpen && (
+          <div
+            className="lg:hidden fixed inset-0 z-20 bg-black/50 backdrop-blur-sm transition-opacity"
+            onClick={toggleSidebar}
+          />
+        )}
       </div>
     </div>
   );

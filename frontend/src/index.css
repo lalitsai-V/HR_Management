@@ -41,7 +41,31 @@
   --color-text-light:       #f1f5f9;
   --color-text-muted-light: #cbd5e1;
   --color-border-light:     #1f2a3a;
+  color-scheme: dark;
 }
+
+/* Native form controls in dark mode */
+.dark input,
+.dark textarea,
+.dark select {
+  color-scheme: dark;
+  background-color: var(--color-surface-light);
+  color: var(--color-text-light);
+  border-color: var(--color-border-light);
+}
+
+/* select option background in dark mode (browser-native, needs explicit bg) */
+.dark select option {
+  background-color: #1a2235;
+  color: #f1f5f9;
+}
+
+/* date/time picker dark UI */
+.dark input[type="date"],
+.dark input[type="time"] {
+  color-scheme: dark;
+}
+
 
 @layer base {
   body {

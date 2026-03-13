@@ -78,7 +78,7 @@ const LeaveApproval = () => {
       </div>
 
       {/* Summary cards */}
-      <div style={{ display:'grid', gridTemplateColumns:'repeat(2,1fr)', gap:16 }}>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {[
           { label:'Approved', value:approvedCount, color:'#10b981', bg:'rgba(16,185,129,0.08)',  icon:CheckCircle2 },
           { label:'Rejected', value:rejectedCount, color:'#ef4444', bg:'rgba(239,68,68,0.08)',   icon:XCircle      },

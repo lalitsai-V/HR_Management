@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Users, Activity, LogOut, CalendarDays, FileText, ClipboardCheck, DollarSign } from 'lucide-react';
+import { LayoutDashboard, Users, Activity, LogOut, CalendarDays, FileText, ClipboardCheck, DollarSign, X } from 'lucide-react';
 import useAuth from '../context/useAuth'; // ✅ FIXED: default import from useAuth.js
 import api from '../services/api';
 import Logo from './Logo';
 
-const Sidebar = () => {
+const Sidebar = ({ isOpen, toggleSidebar }) => {
   const { user, logout } = useAuth();
+  // ... rest existing state
   const navigate = useNavigate();
   const isAdmin = user?.role === 'admin';
   const [profileImage, setProfileImage] = useState('');
@@ -48,14 +49,16 @@ const Sidebar = () => {
 
   return (
     <aside
-      className="w-64 h-screen flex flex-col flex-shrink-0"
+      className={`fixed lg:static inset-y-0 left-0 z-30 w-64 h-screen flex flex-col flex-shrink-0 transition-transform duration-300 transform ${
+        isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+      }`}
       style={{
         background: 'linear-gradient(180deg, #0b1120 0%, #0f172a 100%)',
         borderRight: '1px solid rgba(255,255,255,0.06)',
       }}
     >
-      {/* Logo */}
-      <div className="h-16 flex items-center px-5"
+      {/* Logo & Close Button */}
+      <div className="h-16 flex items-center justify-between px-5"
         style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
         <div className="flex items-center gap-3">
           <Logo size={28} />
@@ -64,6 +67,12 @@ const Sidebar = () => {
             VisoVersa
           </h1>
         </div>
+        <button
+          onClick={toggleSidebar}
+          className="lg:hidden text-slate-400 hover:text-white transition-colors"
+        >
+          <X size={20} />
+        </button>
       </div>
 
       {/* Nav */}

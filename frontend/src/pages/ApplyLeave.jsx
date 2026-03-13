@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { ChevronDown, Calendar, FileText, Paperclip, Camera, ArrowRight, CheckCircle2, Clock, XCircle, RefreshCw } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { ChevronDown, Calendar, FileText, Paperclip, ArrowRight, CheckCircle2, Clock, XCircle, RefreshCw, X } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useNavigate } from 'react-router-dom';
 import useAuth from '../context/useAuth';
@@ -42,6 +42,7 @@ const ApplyLeave = () => {
   };
 
   const [form, setForm]           = useState({ leaveType:'', from:'', to:'', reason:'', description:'' });
+  const [attachment, setAttachment] = useState(null);  // File object
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading]     = useState(false);
   const [error, setError]         = useState('');
@@ -98,8 +99,9 @@ const ApplyLeave = () => {
       });
       setSubmitted(true);
       setForm({ leaveType:'', from:'', to:'', reason:'', description:'' });
-      fetchMyRequests(); // refresh list after submit
-      fetchLeaveBalance(); // refresh balance after submit (or rejection)
+      setAttachment(null);
+      fetchMyRequests();
+      fetchLeaveBalance();
       setTimeout(() => setSubmitted(false), 4000);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to submit leave request');
@@ -253,19 +255,48 @@ const ApplyLeave = () => {
 
             <div>
               <p style={{ fontSize:13, fontWeight:500, color:c.textMuted, marginBottom:6 }}>
-                Attachment <span style={{ color:c.textFaint, fontWeight:400 }}>(Optional)</span>
+                Attachment <span style={{ color:c.textFaint, fontWeight:400 }}>(Optional – PDF, JPG, PNG)</span>
               </p>
-              <div style={{ display:'flex', gap:10 }}>
-                {[{icon:Camera,label:'Camera',color:'#7c3aed',bg:'rgba(124,58,237,0.1)'},
-                  {icon:Paperclip,label:'Attach',color:'#0ea5e9',bg:'rgba(14,165,233,0.1)'}].map(({icon:Icon,label,color,bg}) => (
-                  <button key={label} type="button"
-                    style={{ display:'flex', alignItems:'center', gap:6, padding:'8px 14px',
-                      borderRadius:10, fontSize:13, fontWeight:500, cursor:'pointer',
-                      background:bg, color, border:`1px solid ${color}30` }}>
-                    <Icon size={15} /> {label}
+
+              {attachment ? (
+                /* ── Selected file preview ── */
+                <div style={{ display:'flex', alignItems:'center', gap:10, padding:'10px 14px',
+                  borderRadius:12, background: isDarkMode ? 'rgba(124,58,237,0.1)' : 'rgba(124,58,237,0.06)',
+                  border:'1px solid rgba(124,58,237,0.2)' }}>
+                  <Paperclip size={15} style={{ color:'#7c3aed', flexShrink:0 }} />
+                  <span style={{ flex:1, fontSize:13, color:c.textPrimary, overflow:'hidden',
+                    textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
+                    {attachment.name}
+                  </span>
+                  <span style={{ fontSize:11, color:c.textFaint, flexShrink:0 }}>
+                    {(attachment.size / 1024).toFixed(0)} KB
+                  </span>
+                  <button type="button" onClick={() => setAttachment(null)}
+                    style={{ background:'none', border:'none', cursor:'pointer', color:c.textFaint, padding:0, display:'flex' }}>
+                    <X size={15} />
                   </button>
-                ))}
-              </div>
+                </div>
+              ) : (
+                /* ── File input button ── */
+                <label htmlFor="leave-attachment"
+                  style={{ display:'inline-flex', alignItems:'center', gap:7, padding:'9px 16px',
+                    borderRadius:10, fontSize:13, fontWeight:500, cursor:'pointer',
+                    background:'rgba(14,165,233,0.1)', color:'#0ea5e9',
+                    border:'1px solid rgba(14,165,233,0.25)' }}>
+                  <Paperclip size={15} /> Attach File
+                  <input
+                    id="leave-attachment"
+                    type="file"
+                    accept=".pdf,.jpg,.jpeg,.png,image/jpeg,image/png,application/pdf"
+                    className="hidden"
+                    onChange={(e) => {
+                      const f = e.target.files?.[0];
+                      if (f) setAttachment(f);
+                      e.target.value = ''; // reset so same file can be re-selected
+                    }}
+                  />
+                </label>
+              )}
             </div>
           </div>
         </div>

@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Moon, Sun, Bell } from 'lucide-react';
+import { Moon, Sun, Bell, Menu } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import api from '../services/api';
 
-const Header = () => {
+const Header = ({ toggleSidebar }) => {
   const { isDarkMode, toggleTheme } = useTheme();
+  // ... rest existing state
   const [open, setOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [readIds, setReadIds] = useState(() => {
@@ -52,7 +53,7 @@ const Header = () => {
 
   return (
     <header
-      className="h-16 flex items-center justify-end px-8 sticky top-0 z-10 transition-colors duration-200"
+      className="h-16 flex items-center justify-between px-4 sm:px-8 sticky top-0 z-10 transition-colors duration-200"
       style={{
         background: isDarkMode
           ? 'rgba(22, 29, 47, 0.85)'
@@ -64,7 +65,16 @@ const Header = () => {
           : '1px solid rgba(15,23,42,0.07)',
       }}
     >
-      <div className="flex items-center gap-2" ref={dropdownRef}>
+      {/* Mobile Menu Toggle */}
+      <button
+        onClick={toggleSidebar}
+        className="lg:hidden w-9 h-9 flex items-center justify-center rounded-xl transition-all duration-200"
+        style={{ color: isDarkMode ? '#8892a4' : '#64748b' }}
+      >
+        <Menu size={20} />
+      </button>
+
+      <div className="flex items-center gap-2 ml-auto" ref={dropdownRef}>
         {/* Notification Bell */}
         <button
           onClick={toggleOpen}

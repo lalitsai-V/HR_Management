@@ -428,8 +428,8 @@ const Employees = () => {
           onClick={(e) => { if (e.target === e.currentTarget) closeModal(); }}
         >
           <div
-            className="w-full max-w-md rounded-2xl overflow-hidden"
-            style={{ background: 'var(--color-surface-light)', border: '1px solid var(--color-border-light)', boxShadow: '0 25px 60px rgba(0,0,0,0.2)' }}
+            className="w-full max-w-md rounded-2xl overflow-hidden flex flex-col"
+            style={{ background: 'var(--color-surface-light)', border: '1px solid var(--color-border-light)', boxShadow: '0 25px 60px rgba(0,0,0,0.2)', maxHeight: '90vh' }}
           >
             {/* Modal header */}
             <div className="flex justify-between items-center px-6 py-5" style={{ borderBottom: '1px solid var(--color-border-light)' }}>
@@ -452,7 +452,7 @@ const Employees = () => {
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-6 space-y-4">
+            <form onSubmit={handleSubmit} className="p-6 space-y-4 overflow-y-auto" style={{ flex: 1 }}>
               <div>
                 <FieldLabel>Full Name</FieldLabel>
                 <input type="text" required value={formData.name}
