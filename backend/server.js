@@ -1,14 +1,12 @@
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import authRoutes from './routes/authRoutes.js';
 import employeeRoutes from './routes/employeeRoutes.js';
 import activityRoutes from './routes/activityRoutes.js';
 import leaveRoutes from './routes/Leaveroutes.js';
 import attendanceRoutes from './routes/attendanceRoutes.js';
 import payrollRoutes from './routes/payrollRoutes.js';
-
-dotenv.config();
 
 const app = express();
 
@@ -28,7 +26,7 @@ console.log('🔹 Mounting routes...');
 app.use('/api/auth', authRoutes);
 app.use('/api/employees', employeeRoutes);
 app.use('/api/activity', activityRoutes);
-app.use('/api/leave-requests', leaveRoutes); 
+app.use('/api/leave-requests', leaveRoutes);
 app.use('/api/attendance', attendanceRoutes);
 app.use('/api/payroll', payrollRoutes);
 console.log('✅ All routes mounted');
@@ -42,3 +40,6 @@ app.listen(PORT, () => {
   console.log(`✅ Server running on port ${PORT}`);
   console.log(`📍 Available at http://localhost:${PORT}`);
 });
+
+// Force keep-alive
+setInterval(() => {}, 1000 * 60 * 60);

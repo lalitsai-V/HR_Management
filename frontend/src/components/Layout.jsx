@@ -10,6 +10,7 @@ const Layout = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [checkingProfile, setCheckingProfile] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // ── Is the user on the profile-setup page? ──────────────────────────────
   const isCompleteProfilePage = location.pathname === '/complete-profile';
@@ -99,7 +100,6 @@ const Layout = () => {
     );
   }
 
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
   // ── All other pages: normal layout ───────────────────────────────────────
